@@ -4,5 +4,6 @@
 	</head>
 	<body>
 		<h1>${hello}</h1>
+		<p>yo</p>
 	</body>
 </html>

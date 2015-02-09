@@ -1,6 +1,6 @@
 package dx.dashboard.controllers;
 
-import dx.dashboard.tools.Codec;
+import dx.dashboard.App;
 import dx.dashboard.tools.FreemarkerTemplateEngine;
 import dx.dashboard.tools.RenderArgs;
 import spark.ModelAndView;
@@ -13,7 +13,7 @@ public class DashboardController {
 
 		before((req, res) -> {
 			RenderArgs.init();
-			RenderArgs.put("test", Codec.UUID());
+			RenderArgs.put("startId", App.startId);
 		});
 
 		get("/", (req, res) -> {

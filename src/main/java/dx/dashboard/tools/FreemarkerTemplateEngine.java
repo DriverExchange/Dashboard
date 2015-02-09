@@ -8,8 +8,6 @@ import spark.TemplateEngine;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 public class FreemarkerTemplateEngine extends TemplateEngine {
 
@@ -20,12 +18,11 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
 			if (Configuration.isDevMode()) {
 				configuration.setDirectoryForTemplateLoading(new File("src/main/resources/views"));
 			} else {
-				URL url = ClassLoader.getSystemResource("views");
-				File viewDirectory = new File(url.toURI());
+				File viewDirectory = Tools.getResourceAsFile("views");
 				configuration.setDirectoryForTemplateLoading(viewDirectory);
 			}
 		}
-		catch (IOException | URISyntaxException e) {
+		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}

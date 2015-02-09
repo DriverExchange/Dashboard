@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.util.UUID;
 
@@ -72,5 +74,14 @@ public class Tools {
 			}
 		}
 		return output;
+	}
+
+	public static File getResourceAsFile(String name) {
+		URL url = ClassLoader.getSystemResource(name);
+		try {
+			return new File(url.toURI());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

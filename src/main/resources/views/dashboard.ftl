@@ -7,5 +7,6 @@
 		<h1>${hello}</h1>
 		<p>yo</p>
 		<br><br>
+		<img src="/public/dx-logo.png" alt="logo"/>
 	</body>
 </html>

@@ -3,12 +3,15 @@ package dx.dashboard;
 import dx.dashboard.controllers.AssetsController;
 import dx.dashboard.controllers.DashboardController;
 import dx.dashboard.tools.Codec;
+import dx.dashboard.tools.Configuration;
 import dx.dashboard.tools.Tools;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import static spark.Spark.*;
 
 public class App {
 
@@ -31,6 +34,14 @@ public class App {
 	}
 
 	public static void main(String[] args) {
+		if (Configuration.isDevMode()) {
+			AssetsController.initDevStaticFile();
+		}
+		else {
+			Logger.info("staticFileLocation");
+			staticFileLocation("static");
+		}
+
 		AssetsController.init();
 		DashboardController.init();
 	}

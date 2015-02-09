@@ -1,8 +1,14 @@
 package dx.dashboard.controllers;
 
+import dx.dashboard.Logger;
 import dx.dashboard.tools.CoffeeScriptCompiler;
 import dx.dashboard.tools.Configuration;
+import dx.dashboard.tools.IO;
 import dx.dashboard.tools.StylusCompiler;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.net.URLConnection;
 
 import static spark.Spark.*;
 
@@ -28,6 +34,25 @@ public class AssetsController {
 				res.header("Cache-Control", "max-age=3600");
 			}
 			return StylusCompiler.compile(stylusNameWithoutExt);
+		});
+
+	}
+
+	public static void initDevStaticFile() {
+		get("/public/*", (req, res) -> {
+			String path = req.splat()[0];
+			File file = new File(new File("src/main/resources/static/public"), path);
+			if (!file.exists()) {
+				res.status(404);
+				Logger.error("File not found (" + file.getAbsolutePath() + ")");
+				return "File not found";
+			}
+			else {
+				HttpServletResponse raw = res.raw();
+				res.type(URLConnection.guessContentTypeFromName(path));
+				raw.getOutputStream().write(IO.readContent(file));
+				return "";
+			}
 		});
 	}
 

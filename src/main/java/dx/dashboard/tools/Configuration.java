@@ -1,6 +1,6 @@
 package dx.dashboard.tools;
 
-import dx.dashboard.App;
+import dx.dashboard.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ public class Configuration {
 	static {
 		InputStream is = ClassLoader.getSystemResourceAsStream("application.conf");
 		if (is == null) {
-			App.logger.error("application.conf file cannot be found");
+			Logger.error("application.conf file cannot be found");
 		}
 		try {
 			properties.load(is);

@@ -1,6 +1,6 @@
 package dx.dashboard.tools;
 
-import dx.dashboard.App;
+import dx.dashboard.Logger;
 
 import static javax.script.ScriptContext.*;
 
@@ -39,7 +39,7 @@ public class CoffeeScriptCompiler {
 			}
 		}
 		else {
-			coffeeIs = ClassLoader.getSystemResourceAsStream("scripts/" + coffeeScriptName + ".coffee");
+			coffeeIs = ClassLoader.getSystemResourceAsStream("coffeescripts/" + coffeeScriptName + ".coffee");
 		}
 
 		String compiledCoffee = "";
@@ -63,7 +63,7 @@ public class CoffeeScriptCompiler {
 					coffeeErrors += line + "\n";
 				}
 				if (!coffeeErrors.isEmpty()) {
-					App.logger.error("%s", coffeeErrors);
+					Logger.error("%s", coffeeErrors);
 				}
 				compiledReader.close();
 			} catch (IOException e) {

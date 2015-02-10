@@ -18,9 +18,12 @@ public class Database {
 	final Jdbc jdbc;
 	public static DataSource datasource;
 
-	public static void initDataSource() {
+	public static void initDataSource(String dbConfName) {
 		try {
+
+			String prefix = "db." + dbConfName;
 			Properties p = App.configuration;
+
 			// Try the driver
 			String driver = p.getProperty("db.driver");
 			try {
@@ -32,10 +35,10 @@ public class Database {
 			// Try the connection
 			Connection fake = null;
 			try {
-				if (App.configuration.getProperty("db.user") == null) {
-					fake = DriverManager.getConnection(p.getProperty("db.url"));
+				if (App.configuration.getProperty(prefix + ".user") == null) {
+					fake = DriverManager.getConnection(p.getProperty(prefix + ".url"));
 				} else {
-					fake = DriverManager.getConnection(p.getProperty("db.url"), p.getProperty("db.user"), p.getProperty("db.pass"));
+					fake = DriverManager.getConnection(p.getProperty(prefix + ".url"), p.getProperty(prefix + ".user"), p.getProperty(prefix + ".pass"));
 				}
 			} finally {
 				if (fake != null) {
@@ -46,16 +49,16 @@ public class Database {
 			System.setProperty("com.mchange.v2.log.MLog", "com.mchange.v2.log.FallbackMLog");
 			System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "OFF");
 			ComboPooledDataSource ds = new ComboPooledDataSource();
-			ds.setDriverClass(p.getProperty("db.driver"));
-			ds.setJdbcUrl(p.getProperty("db.url"));
-			ds.setUser(p.getProperty("db.user"));
-			ds.setPassword(p.getProperty("db.pass"));
+			ds.setDriverClass(p.getProperty(prefix + ".driver"));
+			ds.setJdbcUrl(p.getProperty(prefix + ".url"));
+			ds.setUser(p.getProperty(prefix + ".user"));
+			ds.setPassword(p.getProperty(prefix + ".pass"));
 			ds.setAcquireRetryAttempts(10);
-			ds.setCheckoutTimeout(Integer.parseInt(p.getProperty("db.pool.timeout", "5000")));
+			ds.setCheckoutTimeout(Integer.parseInt(p.getProperty(prefix + ".pool.timeout", "5000")));
 			ds.setBreakAfterAcquireFailure(false);
-			ds.setMaxPoolSize(Integer.parseInt(p.getProperty("db.pool.maxSize", "30")));
-			ds.setMinPoolSize(Integer.parseInt(p.getProperty("db.pool.minSize", "1")));
-			ds.setMaxIdleTimeExcessConnections(Integer.parseInt(p.getProperty("db.pool.maxIdleTimeExcessConnections", "0")));
+			ds.setMaxPoolSize(Integer.parseInt(p.getProperty(prefix + ".pool.maxSize", "30")));
+			ds.setMinPoolSize(Integer.parseInt(p.getProperty(prefix + ".pool.minSize", "1")));
+			ds.setMaxIdleTimeExcessConnections(Integer.parseInt(p.getProperty(prefix + ".pool.maxIdleTimeExcessConnections", "0")));
 			ds.setIdleConnectionTestPeriod(10);
 			ds.setTestConnectionOnCheckin(true);
 
@@ -77,8 +80,8 @@ public class Database {
 		}
 	}
 
-	public Database() {
-		initDataSource();
+	public Database(String dbConfName) {
+		initDataSource(dbConfName);
 		try {
 			jdbc = new Jdbc(datasource.getConnection());
 		} catch (SQLException e) {

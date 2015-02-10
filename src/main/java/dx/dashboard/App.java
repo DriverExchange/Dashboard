@@ -49,7 +49,12 @@ public class App {
 		}
 	}
 
-	public static final Database db = new Database();
+	public static class Databases {
+		public Database dx = new Database("dx");
+		public Database dashboard = new Database("dashboard");
+	}
+
+	public static final Databases db = new Databases();
 
 	public static boolean isDevMode() {
 		return configuration.getProperty("mode", "prod").equals("dev");

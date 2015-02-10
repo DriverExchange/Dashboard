@@ -3,13 +3,16 @@ package dx.dashboard;
 import dx.dashboard.controllers.AssetsController;
 import dx.dashboard.controllers.DashboardController;
 import dx.dashboard.tools.Codec;
-import dx.dashboard.tools.Configuration;
+import dx.dashboard.tools.Database;
 import dx.dashboard.tools.Tools;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Properties;
 
 import static spark.Spark.*;
 
@@ -33,8 +36,27 @@ public class App {
 		}
 	}
 
+	public static final Properties configuration = new Properties();
+	static {
+		InputStream is = ClassLoader.getSystemResourceAsStream("application.properties");
+		if (is == null) {
+			Logger.error("application.conf file cannot be found");
+		}
+		try {
+			configuration.load(is);
+		} catch (IOException e) {
+			throw new RuntimeException("Error while loading application.conf", e);
+		}
+	}
+
+	public static final Database db = new Database();
+
+	public static boolean isDevMode() {
+		return configuration.getProperty("mode", "prod").equals("dev");
+	}
+
 	public static void main(String[] args) {
-		if (Configuration.isDevMode()) {
+		if (isDevMode()) {
 			AssetsController.initDevStaticFile();
 		}
 		else {

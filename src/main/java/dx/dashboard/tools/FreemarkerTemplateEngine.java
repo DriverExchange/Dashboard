@@ -1,5 +1,6 @@
 package dx.dashboard.tools;
 
+import dx.dashboard.App;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import spark.ModelAndView;
@@ -15,7 +16,7 @@ public class FreemarkerTemplateEngine extends TemplateEngine {
 	public FreemarkerTemplateEngine() {
 		try {
 			configuration = new freemarker.template.Configuration();
-			if (Configuration.isDevMode()) {
+			if (App.isDevMode()) {
 				configuration.setDirectoryForTemplateLoading(new File("src/main/resources/views"));
 			} else {
 				File viewDirectory = Tools.getResourceAsFile("views");

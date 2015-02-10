@@ -1,5 +1,6 @@
 package dx.dashboard.tools;
 
+import dx.dashboard.App;
 import dx.dashboard.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -24,7 +25,7 @@ public class StylusCompiler {
 	private static final Pattern imports = Pattern.compile("@import\\s+[\"']?([^\"']+)[\"']?");
 
 	public static File getStylusSourceDir() {
-		if (Configuration.isDevMode()) {
+		if (App.isDevMode()) {
 			return new File("src/main/resources/stylus");
 		}
 		else {
@@ -140,13 +141,13 @@ public class StylusCompiler {
 
 	public static String compileProcess(String stylusContent) {
 		String compiled = "";
-		String coffeeNativeFullpath = Configuration.properties.getProperty("stylus.path", "");
+		String coffeeNativeFullpath = App.configuration.getProperty("stylus.path", "");
 		List<String> command = new ArrayList<String>();
 		command.add(coffeeNativeFullpath);
 		command.add("--include-css");
 		command.add("--include");
 		command.add(sourceDir.getAbsolutePath());
-		if (!Configuration.isDevMode()) {
+		if (!App.isDevMode()) {
 			command.add("-c");
 		}
 		ProcessBuilder pb = new ProcessBuilder(command);

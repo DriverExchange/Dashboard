@@ -4,9 +4,11 @@
 		<link rel="stylesheet" type="text/css" media="screen,print" href="/assets/${startId}/styles/dashboard.css">
 	</head>
 	<body>
-		<h1>${hello}</h1>
-		<p>yo</p>
-		<br><br>
-		<img src="/public/dx-logo.png" alt="logo"/>
+		<h1>The sites</h1>
+		<ul>
+			<#list sites as site>
+				<li>${site}</li>
+			</#list>
+		</ul>
 	</body>
 </html>

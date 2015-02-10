@@ -1,5 +1,6 @@
 package dx.dashboard.tools;
 
+import dx.dashboard.App;
 import dx.dashboard.Logger;
 
 import static javax.script.ScriptContext.*;
@@ -27,7 +28,7 @@ public class CoffeeScriptCompiler {
 	public static String compileCoffee(String coffeeScriptName) {
 		InputStream coffeeIs;
 		File compiledFile = getCompiledCoffeeFile(coffeeScriptName);
-		if (Configuration.isDevMode()) {
+		if (App.isDevMode()) {
 			File coffeeFile = new File("src/main/resources/scripts/" + coffeeScriptName + ".coffee");
 			if (compiledFile.exists() && coffeeFile.lastModified() <= compiledFile.lastModified()) {
 				return IO.readContentAsString(compiledFile);
@@ -43,7 +44,7 @@ public class CoffeeScriptCompiler {
 		}
 
 		String compiledCoffee = "";
-		String coffeeNativeFullpath = Configuration.properties.getProperty("coffee.native", "");
+		String coffeeNativeFullpath = App.configuration.getProperty("coffee.native", "");
 		if (!coffeeNativeFullpath.isEmpty()) {
 			File tmpCoffeeFile = Tools.tmpFile();
 			IO.write(coffeeIs, tmpCoffeeFile);

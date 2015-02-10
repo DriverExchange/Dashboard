@@ -1,8 +1,8 @@
 package dx.dashboard.controllers;
 
+import dx.dashboard.App;
 import dx.dashboard.Logger;
 import dx.dashboard.tools.CoffeeScriptCompiler;
-import dx.dashboard.tools.Configuration;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.StylusCompiler;
 
@@ -20,7 +20,7 @@ public class AssetsController {
 			String scriptName = req.params("fileName");
 			String coffeeScriptName = scriptName.substring(0, scriptName.length() - 3);
 			res.type("text/javascript");
-			if (!Configuration.isDevMode()) {
+			if (!App.isDevMode()) {
 				res.header("Cache-Control", "max-age=3600");
 			}
 			return CoffeeScriptCompiler.compileCoffee(coffeeScriptName);
@@ -30,7 +30,7 @@ public class AssetsController {
 			String stylusName = req.params("fileName");
 			String stylusNameWithoutExt = stylusName.substring(0, stylusName.length() - 4);
 			res.type("text/css");
-			if (!Configuration.isDevMode()) {
+			if (!App.isDevMode()) {
 				res.header("Cache-Control", "max-age=3600");
 			}
 			return StylusCompiler.compile(stylusNameWithoutExt);

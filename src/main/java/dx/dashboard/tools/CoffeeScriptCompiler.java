@@ -29,7 +29,7 @@ public class CoffeeScriptCompiler {
 		InputStream coffeeIs;
 		File compiledFile = getCompiledCoffeeFile(coffeeScriptName);
 		if (App.isDevMode()) {
-			File coffeeFile = new File("src/main/resources/scripts/" + coffeeScriptName + ".coffee");
+			File coffeeFile = new File("src/main/resources/coffeescripts/" + coffeeScriptName + ".coffee");
 			if (compiledFile.exists() && coffeeFile.lastModified() <= compiledFile.lastModified()) {
 				return IO.readContentAsString(compiledFile);
 			}

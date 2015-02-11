@@ -6,9 +6,9 @@ import dx.dashboard.tools.CoffeeScriptCompiler;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.StylusCompiler;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.net.URLConnection;
 
 import static spark.Spark.*;
 
@@ -38,6 +38,7 @@ public class AssetsController {
 
 	}
 
+	public static final MimetypesFileTypeMap mimeTypes = new MimetypesFileTypeMap(ClassLoader.getSystemResourceAsStream("mime.types"));
 	public static void initDevStaticFile() {
 		get("/public/*", (req, res) -> {
 			String path = req.splat()[0];
@@ -49,7 +50,8 @@ public class AssetsController {
 			}
 			else {
 				HttpServletResponse raw = res.raw();
-				res.type(URLConnection.guessContentTypeFromName(path));
+				String mimeType = mimeTypes.getContentType(path);
+				res.type(mimeType);
 				raw.getOutputStream().write(IO.readContent(file));
 				return "";
 			}

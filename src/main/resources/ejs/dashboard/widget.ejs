@@ -1,0 +1,14 @@
+<div class="widget">
+	<div class="title"><%= title %></div>
+	<div class="content">
+		<% if (obj.errors) { %>
+		<div class="errors">
+			<ul>
+				<% for (var idx in errors) { %>
+				<li><%= errors[key] %></li>
+				<% } %>
+			</ul>
+		</div>
+		<% } %>
+	</div>
+</div>

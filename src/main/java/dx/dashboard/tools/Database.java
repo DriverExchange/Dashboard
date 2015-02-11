@@ -4,13 +4,17 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import dx.dashboard.App;
 import dx.dashboard.Logger;
 import fr.zenexity.dbhelper.Jdbc;
+import fr.zenexity.dbhelper.JdbcException;
 import fr.zenexity.dbhelper.JdbcIterator;
+import fr.zenexity.dbhelper.JdbcResult;
+import fr.zenexity.dbhelper.JdbcStatementException;
 import fr.zenexity.dbhelper.Sql;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 public class Database {
@@ -25,7 +29,7 @@ public class Database {
 			Properties p = App.configuration;
 
 			// Try the driver
-			String driver = p.getProperty("db.driver");
+			String driver = p.getProperty(prefix + ".driver");
 			try {
 				Class.forName(driver).newInstance();
 			} catch (Exception e) {
@@ -100,12 +104,52 @@ public class Database {
 		jdbc.connection.setAutoCommit(true);
 	}
 
-	public <T> JdbcIterator<T> execute(Sql.Query query, Class<T> resultClass) {
+	public <T> JdbcIterator<T> run(Sql.Query query, JdbcResult.Factory<T> resultFactory) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, resultFactory);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, Class<T> resultClass) throws JdbcException {
 		Logger.debug(Sql.resolve(query));
 		return jdbc.execute(query, resultClass);
 	}
 
-	public int execute(Sql.UpdateQuery query) {
+	public <T> JdbcIterator<T> run(Sql.Query query, Class<T> resultClass, String... fields) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, resultClass, fields);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, Class<T> resultClass, List<String> fields) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, resultClass, fields);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, int offset, int size, JdbcResult.Factory<T> resultFactory) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, offset, size, resultFactory);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, int offset, int size, Class<T> resultClass) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, offset, size, resultClass);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, int offset, int size, Class<T> resultClass, String... fields) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, offset, size, resultClass, fields);
+	}
+
+	public <T> JdbcIterator<T> run(Sql.Query query, int offset, int size, Class<T> resultClass, List<String> fields) throws JdbcException {
+		Logger.debug(Sql.resolve(query));
+		return jdbc.execute(query, offset, size, resultClass, fields);
+	}
+
+	public int runUpdate(String query, Object... params) throws JdbcStatementException {
+		Logger.debug(query);
+		return jdbc.executeUpdate(query, params);
+	}
+
+	public int run(Sql.UpdateQuery query) throws JdbcStatementException {
 		Logger.debug(Sql.resolve(query));
 		return jdbc.execute(query);
 	}

@@ -5,6 +5,7 @@ import dx.dashboard.controllers.DashboardController;
 import dx.dashboard.tools.Codec;
 import dx.dashboard.tools.Database;
 import dx.dashboard.tools.Tools;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class App {
 
 	public static class Databases {
 		public Database dx = new Database("dx");
-		public Database dashboard = new Database("dashboard");
+//		public Database dashboard = new Database("dashboard");
 	}
 
 	public static final Databases db = new Databases();
@@ -71,6 +72,11 @@ public class App {
 
 		AssetsController.init();
 		DashboardController.init();
+
+		exception(RuntimeException.class, (e, req, res) -> {
+			res.status(500);
+			res.body("<pre style=\"color: #c00; white-space: pre-wrap\">" + ExceptionUtils.getStackTrace(e) + "</pre>");
+		});
 	}
 
 }

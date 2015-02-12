@@ -16,8 +16,8 @@ public class RenderArgs {
 		map().put(key, value);
 	}
 
-	public static Object get(String key) {
-		return map().get(key);
+	public static <T> T get(String key) {
+		return (T) map().get(key);
 	}
 
 	public static Map<String, Object> map() {

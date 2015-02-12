@@ -15,6 +15,7 @@
 
 	<script type="text/javascript">
 		${dx.dashboard.tools.AssetsCompiler.getEjsViews("dashboard")}
+		window.dashboardsConf = ${dashboardsConfJson};
 		window.dashboardConf = ${dashboardConfJson};
 		window.widgetTitles = ${widgetTitlesJson};
 	</script>
@@ -23,6 +24,9 @@
 
 </head>
 <body>
+	<div id="dashboardNav">
+	</div>
+
 	<% if (!errors?.isEmpty()) { %>
 	<div class="globalErrors">
 		<p><strong>There are errors:</strong></p>

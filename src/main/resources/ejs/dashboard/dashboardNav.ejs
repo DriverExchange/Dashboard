@@ -1,0 +1,5 @@
+<div id="dashboardNav">
+	<% _.map(dashboardsConf, function(dashboardConf) { %>
+		<a href="/dashboards/<%= dashboardConf.name %>" class="<% if (dashboardConf.name == window.dashboardConf.name) { %>active<% } %>"><%= dashboardConf.title %></a>
+	<% }) %>
+</div>

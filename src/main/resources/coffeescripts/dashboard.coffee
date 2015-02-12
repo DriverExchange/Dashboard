@@ -1,9 +1,11 @@
 
 $ ->
+
+	$("#dashboardNav").replaceWith fwk.views.dashboardNav(dashboardsConf: dashboardsConf)
+
 	$widgets = $("#widgets")
-	nbCols = dashboardConf.length
-	width = Math.floor(10000 / nbCols) / 100
-	for cols, idx in dashboardConf
+	nbCols = dashboardConf.widgets.length
+	for cols, idx in dashboardConf.widgets
 		$widgets.append("""<div class="col col#{idx} nbCols#{nbCols}"></div>""")
 		$col = $widgets.find(".col.col#{idx}")
 		for widgetName in cols
@@ -12,7 +14,6 @@ $ ->
 			$.ajax
 				url: "/widgets/#{widgetName}"
 				success: (widget) ->
-					console.log(widget)
 					$widget = $(".widget[data-name=#{widget.name}]")
 					tables = ""
 					for table in widget.configuration.tables

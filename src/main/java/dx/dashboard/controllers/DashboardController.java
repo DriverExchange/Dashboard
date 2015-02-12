@@ -26,19 +26,67 @@ import static spark.Spark.*;
 
 public class DashboardController {
 
-	public static void init() {
-
-		final String widgetsPath = App.configuration.getProperty("dashboard.widgets.path");
+	public static final String widgetsPath = App.configuration.getProperty("dashboard.widgets.path");
+	static {
 		if (widgetsPath == null) {
 			throw new RuntimeException("dashboard.widgets.path is undefined");
 		}
-
-		final File widgetsDir = new File(widgetsPath, "src");
+	}
+	public static final File widgetsDir = new File(widgetsPath, "src");
+	static {
 		if (!widgetsDir.exists()) {
 			throw new RuntimeException(widgetsDir.getAbsolutePath() + " (defined in dashboard.widgets.path) was not found");
 		}
+	}
 
-		final Pattern validNameRegex = Pattern.compile("[a-zA-Z0-9]+");
+	public static final Pattern validNameRegex = Pattern.compile("[a-zA-Z0-9]+");
+
+	public static JsonArray readDashboardsConfiguration() {
+		List<String> errors = RenderArgs.get("errors");
+		File dashboardConfFile = new File(widgetsDir, "dashboards.json");
+		if (!dashboardConfFile.exists()) {
+			errors.add(dashboardConfFile.getAbsolutePath() + " not found");
+		}
+		else {
+			try {
+				return (JsonArray) new JsonParser().parse(IO.readContentAsString(dashboardConfFile));
+			} catch (JsonSyntaxException e) {
+				errors.add(String.format("Malformed JSON in dashboards.json"));
+			}
+		}
+		return null;
+	}
+
+	public static JsonObject getDashboardConfiguration(JsonArray dashboardsConf, String dashboardName) {
+		List<String> errors = RenderArgs.get("errors");
+		if (dashboardsConf != null) {
+			Iterator<JsonElement> dashboardsIt = dashboardsConf.iterator();
+			while (dashboardsIt.hasNext()) {
+				JsonObject dashboardConf = (JsonObject) dashboardsIt.next();
+				String name = dashboardConf.get("name").getAsString();
+				if (name != null && name.equals(dashboardName)) {
+					return dashboardConf;
+				}
+			}
+		}
+		errors.add(String.format(dashboardName + " not found in dashboards.json"));
+		return null;
+	}
+
+	public static JsonObject readWidgetConfiguration(String widgetName) {
+		File configurationFile = new File(widgetsDir, widgetName + "/configuration.json");
+		if (configurationFile.exists()) {
+			try {
+				return (JsonObject) new JsonParser().parse(IO.readContentAsString(configurationFile));
+			} catch (JsonSyntaxException e) {
+				List<String> errors = RenderArgs.get("errors");
+				errors.add(String.format("<strong>%s</strong>: malformed JSON in configuration.json", widgetName));
+			}
+		}
+		return null;
+	}
+
+	public static void init() {
 
 		before((req, res) -> {
 			RenderArgs.init();
@@ -46,39 +94,41 @@ public class DashboardController {
 		});
 
 		get("/", (req, res) -> {
+			JsonArray dashboardsConf = readDashboardsConfiguration();
+			JsonObject dashboardObject = (JsonObject) dashboardsConf.iterator().next();
+			String dashboardName = dashboardObject.get("name").getAsString();
+			res.redirect("/dashboards/" + dashboardName);
+			return "";
+		});
+
+		get("/dashboards/:dashboardName", (req, res) -> {
+			String dashboardName = req.params("dashboardName");
 			List<String> errors = new ArrayList<>();
-			JsonArray dashboardConf = null;
+			RenderArgs.put("errors", errors);
 			Map<String, String> widgetTitles = new HashMap<>();
-			File dashboardConfFile = new File(widgetsDir, "dashboard.json");
-			if (!dashboardConfFile.exists()) {
-				errors.add(dashboardConfFile.getAbsolutePath() + " not found");
-			}
-			try {
-				dashboardConf = (JsonArray) new JsonParser().parse(IO.readContentAsString(dashboardConfFile));
-			} catch (JsonSyntaxException e) {
-				errors.add(String.format("Malformed JSON in dashboard.json"));
-			}
+			JsonArray dashboardsConf = readDashboardsConfiguration();
+			JsonObject dashboardConf = getDashboardConfiguration(dashboardsConf, dashboardName);
 			if (dashboardConf != null) {
-				Iterator<JsonElement> colsIt = dashboardConf.iterator();
-				while (colsIt.hasNext()) {
-					JsonArray widgetNames = colsIt.next().getAsJsonArray();
-					Iterator<JsonElement> widgetNamesIt = widgetNames.iterator();
-					while (widgetNamesIt.hasNext()) {
-						String widgetName = widgetNamesIt.next().getAsString();
-						File configurationFile = new File(widgetsDir, widgetName + "/configuration.json");
-						if (configurationFile.exists()) {
-							try {
-								JsonObject configuration = (JsonObject) new JsonParser().parse(IO.readContentAsString(configurationFile));
-								widgetTitles.put(widgetName, configuration.get("title").getAsString());
-							} catch (JsonSyntaxException e) {
-								errors.add(String.format("<strong>%s</strong>: malformed JSON in configuration.json", widgetName));
-							}
+				JsonArray widgetsConf = dashboardConf.getAsJsonArray("widgets");
+				if (widgetsConf == null) {
+					errors.add(String.format("'widgets' is not defined for " + dashboardName + " in dashboards.json"));
+				} else {
+					Iterator<JsonElement> colsIt = widgetsConf.iterator();
+					while (colsIt.hasNext()) {
+						JsonArray widgetNames = colsIt.next().getAsJsonArray();
+						Iterator<JsonElement> widgetNamesIt = widgetNames.iterator();
+						while (widgetNamesIt.hasNext()) {
+							String widgetName = widgetNamesIt.next().getAsString();
+							JsonObject configuration = readWidgetConfiguration(widgetName);
+							String widgetTitle = configuration.get("title").getAsString();
+							widgetTitles.put(widgetName, widgetTitle);
 						}
 					}
 				}
 			}
 			Gson gson = new Gson();
 			RenderArgs.put("errors", errors);
+			RenderArgs.put("dashboardsConfJson", gson.toJson(dashboardsConf));
 			RenderArgs.put("dashboardConfJson", gson.toJson(dashboardConf));
 			RenderArgs.put("widgetTitlesJson", gson.toJson(widgetTitles));
 			return new ModelAndView(RenderArgs.renderArgs.get(), "dashboard.html");
@@ -89,6 +139,7 @@ public class DashboardController {
 			JsonObject result = new JsonObject();
 			List<String> errors = new ArrayList<>();
 			String widgetName = req.params("widgetName");
+			JsonObject objConfiguration = readWidgetConfiguration(widgetName);
 			File widgetDir = new File(widgetsDir, widgetName);
 			if (!widgetDir.exists()) {
 				throw new RuntimeException(widgetsDir.getAbsolutePath() + " is not a directory");
@@ -96,15 +147,7 @@ public class DashboardController {
 			Map<String, List<Map<String, Object>>> data = new HashMap<>();
 			for (File widgetFile : widgetDir.listFiles()) {
 				String fileName = widgetFile.getName();
-				if (fileName.equals("configuration.json")) {
-					String strConfiguration = IO.readContentAsString(widgetFile);
-					try {
-						JsonObject objConfiguration = (JsonObject) new JsonParser().parse(strConfiguration);
-						result.add("configuration", objConfiguration);
-					} catch (JsonSyntaxException e) {
-						errors.add("Malformed JSON in configuration.json");
-					}
-				} else if (fileName.endsWith(".sql")) {
+				if (fileName.endsWith(".sql")) {
 					String queryName = fileName.substring(0, fileName.length() - 4);
 					if (!validNameRegex.matcher(queryName).matches()) {
 						errors.add(String.format("<strong>%s</strong> is not a valid query name", queryName));
@@ -127,6 +170,7 @@ public class DashboardController {
 				res.status(400);
 				return new Gson().toJson(errors);
 			} else {
+				result.add("configuration", objConfiguration);
 				result.addProperty("name", widgetName);
 				result.add("data", new JsonParser().parse(new Gson().toJson(data)));
 				return new Gson().toJson(result);

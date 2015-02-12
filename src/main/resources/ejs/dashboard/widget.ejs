@@ -1,5 +1,7 @@
-<div class="widget">
-	<div class="title"><%= title %></div>
+<div class="widget" data-name="<%= widgetName %>">
+	<% if (obj.widget) { %>
+		<div class="title"><%= widget.configuration.title %></div>
+	<% } %>
 	<div class="content">
 		<% if (obj.errors) { %>
 		<div class="errors">
@@ -9,6 +11,8 @@
 				<% } %>
 			</ul>
 		</div>
+		<% } else if (obj.body) { %>
+			<%- body %>
 		<% } %>
 	</div>
 </div>

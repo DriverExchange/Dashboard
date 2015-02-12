@@ -1,14 +1,27 @@
 
 $ ->
-	for widget in widgets
-		# TODO
-#		widgetName = $(this).data("name")
-#		$widget.spinStart(largeSpinnerOptions)
-#		$.ajax
-#			url: "/widgets/#{widgetName}"
-#			success: (data) -> $widget.html data
-#			error: (xhr) ->
-#				if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
-#					data = $.parseJSON(xhr.responseText)
-
+	$widgets = $("#widgets")
+	nbCols = dashboardConf.length
+	width = Math.floor(10000 / nbCols) / 100
+	for cols, idx in dashboardConf
+		$widgets.append("""<div class="col col#{idx} nbCols#{nbCols}"></div>""")
+		$col = $widgets.find(".col.col#{idx}")
+		for widgetName in cols
+			$col.append(fwk.views.widget(widgetName: widgetName, title: widgetTitles[widgetName]))
+			$col.find(".widget[data-name=#{widgetName}]").spinStart(largeSpinnerOptions)
+			$.ajax
+				url: "/widgets/#{widgetName}"
+				success: (widget) ->
+					console.log(widget)
+					$widget = $(".widget[data-name=#{widget.name}]")
+					tables = ""
+					for table in widget.configuration.tables
+						tables += fwk.views.widgetTable(results: widget.data[table.queryName], table: table)
+					$widget.replaceWith fwk.views.widget
+						widgetName: widget.name
+						widget: widget
+						body: tables
+				error: (xhr) ->
+					if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
+						fwk.views.widget(errors: $.parseJSON(xhr.responseText))
 

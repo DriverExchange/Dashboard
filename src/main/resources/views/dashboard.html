@@ -16,13 +16,22 @@
 
 	<script type="text/javascript">
 		${dx.dashboard.tools.AssetsCompiler.getEjsViews("dashboard")}
-
 		<% jsData.each { name, value -> %>
 			fwk.data["${name}"] = ${value};
 		<% } %>
 	</script>
 
 	<script src="/assets/${startId}/scripts/dashboard.js" type="text/javascript" charset="utf-8"></script>
+
+	<script type="text/javascript"
+		src="https://www.google.com/jsapi?autoload={
+			'modules':[{
+				'name':'visualization',
+				'version':'1',
+				'packages':['corechart']
+			}]
+		}">
+	</script>
 
 </head>
 <body>

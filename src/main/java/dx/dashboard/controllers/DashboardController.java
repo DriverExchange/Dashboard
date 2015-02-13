@@ -155,7 +155,7 @@ public class DashboardController {
 					String strQuery = IO.readContentAsString(widgetFile);
 					if (strQuery == null) {
 						errors.add(String.format("<strong>%s</strong> query could not be read", queryName));
-					} else if (strQuery.trim().startsWith("SELECT")) {
+					} else if (!strQuery.trim().toUpperCase().startsWith("SELECT")) {
 						errors.add(String.format("<strong>%s</strong> query must start with SELECT", queryName));
 					}
 					List<Map<String, Object>> queryResults = App.db.dx.run(new FinalQuery(strQuery), JdbcResult.mapFactory()).limit(501).list();

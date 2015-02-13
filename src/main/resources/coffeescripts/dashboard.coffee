@@ -1,15 +1,15 @@
 
 $ ->
 
-	$("#dashboardNav").replaceWith fwk.views.dashboardNav(dashboardsConf: dashboardsConf)
+	$("#topBar").replaceWith fwk.views.topBar({})
 
 	$widgets = $("#widgets")
-	nbCols = dashboardConf.widgets.length
-	for cols, idx in dashboardConf.widgets
+	nbCols = fwk.data.dashboardConf.widgets.length
+	for cols, idx in fwk.data.dashboardConf.widgets
 		$widgets.append("""<div class="col col#{idx} nbCols#{nbCols}"></div>""")
 		$col = $widgets.find(".col.col#{idx}")
 		for widgetName in cols
-			$col.append(fwk.views.widget(widgetName: widgetName, title: widgetTitles[widgetName]))
+			$col.append(fwk.views.widget(widgetName: widgetName, title: fwk.data.widgetTitles[widgetName]))
 			$col.find(".widget[data-name=#{widgetName}]").spinStart(largeSpinnerOptions)
 			$.ajax
 				url: "/widgets/#{widgetName}"

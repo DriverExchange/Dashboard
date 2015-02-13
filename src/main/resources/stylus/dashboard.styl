@@ -64,19 +64,53 @@ ul
 				border-bottom: 0
 				padding-bottom: 0
 
-#dashboardNav
+#topBar
 	background: #fff
-	padding: 20px
 	margin-right: 20px
-	a
+	height: 50px
+	.dashboardNav
 		display: inline-block
-		color: #8C8C8C
+		position: relative
+		margin-left: 20px
 		background: #F4F4F4
-		padding: 10px
-		text-decoration: none
-		border-radius: 3px
-		margin-right: 10px
-		&.active
-			background: #788A98
-			color: #fff
+		height: 50px
+		line-height: 50px
+		padding: 0 20px
+		.selected
+			position: relative
+			padding-right: 15px
+			.glyphicon
+				position: absolute
+				top: 50%
+				right: -10px
+				margin-top: -6px
+				color: #ccc
+
+		.dropdown
+			background: #eee
+			display: none
+			position: absolute
+			top: 50px
+			left: 0
+			line-height: 20px
+			padding: 10px 20px
+			z-index: 2
+			max-height: 200px
+			overflow: auto
+			min-width: 100%
+			ul
+				margin: 0
+				padding: 0
+				list-style: none
+				li
+					margin: 0
+					padding: 2px 0
+		&:hover .dropdown
+			display: block
+
+
+	a
+		color: #333
+		&:hover
+			color: #888
 

@@ -3,6 +3,8 @@ window.fwk = window.fwk || {}
 
 _.extend window.fwk, do ->
 
+	data: {}
+
 	views: do ->
 		templates = {}
 		templatePaths = []

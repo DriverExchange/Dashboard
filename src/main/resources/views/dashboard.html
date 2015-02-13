@@ -3,6 +3,7 @@
 	<title>DX Dashboard</title>
 
 	<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen,print" href="/public/bootstrap-3.3.2/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" media="screen,print" href="/assets/${startId}/styles/dashboard.css">
 
 	<script src="/public/javascripts/jquery-2.1.3.min.js" type="text/javascript" charset="utf-8"></script>
@@ -15,16 +16,17 @@
 
 	<script type="text/javascript">
 		${dx.dashboard.tools.AssetsCompiler.getEjsViews("dashboard")}
-		window.dashboardsConf = ${dashboardsConfJson};
-		window.dashboardConf = ${dashboardConfJson};
-		window.widgetTitles = ${widgetTitlesJson};
+
+		<% jsData.each { name, value -> %>
+			fwk.data["${name}"] = ${value};
+		<% } %>
 	</script>
 
 	<script src="/assets/${startId}/scripts/dashboard.js" type="text/javascript" charset="utf-8"></script>
 
 </head>
 <body>
-	<div id="dashboardNav">
+	<div id="topBar">
 	</div>
 
 	<% if (!errors?.isEmpty()) { %>

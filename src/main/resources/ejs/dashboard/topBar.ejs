@@ -1,0 +1,19 @@
+<div id="topBar">
+	<div class="dashboardNav">
+		<div class="dashboardSelect">
+			<div class="selected">
+				<%= fwk.data.dashboardConf.title %>
+				<span class="glyphicon glyphicon-chevron-down"></span>
+			</div>
+			<div class="dropdown">
+				<ul>
+				<% _.map(fwk.data.dashboardsConf, function(dashboard) { %>
+					<% if (dashboard.name != fwk.data.dashboardConf.name) { %>
+						<li><a href="/dashboards/<%= dashboard.name %>" value="<%= dashboard.name %>"><%= dashboard.title %></a></li>
+					<% } %>
+				<% }) %>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

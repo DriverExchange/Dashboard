@@ -126,11 +126,10 @@ public class DashboardController {
 					}
 				}
 			}
-			Gson gson = new Gson();
 			RenderArgs.put("errors", errors);
-			RenderArgs.put("dashboardsConfJson", gson.toJson(dashboardsConf));
-			RenderArgs.put("dashboardConfJson", gson.toJson(dashboardConf));
-			RenderArgs.put("widgetTitlesJson", gson.toJson(widgetTitles));
+			RenderArgs.addJsData("dashboardsConf", dashboardsConf);
+			RenderArgs.addJsData("dashboardConf", dashboardConf);
+			RenderArgs.addJsData("widgetTitles", widgetTitles);
 			return new ModelAndView(RenderArgs.renderArgs.get(), "dashboard.html");
 		}, new GroovyTemplateEngine());
 

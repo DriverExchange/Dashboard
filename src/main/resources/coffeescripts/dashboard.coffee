@@ -15,13 +15,19 @@ $ ->
 				url: "/widgets/#{widgetName}"
 				success: (widget) ->
 					$widget = $(".widget[data-name=#{widget.name}]")
-					tables = ""
-					for table in widget.configuration.tables
-						tables += fwk.views.widgetTable(results: widget.data[table.queryName], table: table)
+					body = ""
+					if widget.css
+						$("head").append """<style type="text/css">#{widget.css}</style>"""
+					if widget.template
+						fwk.views.addInline(widgetTemplate: widget.template)
+						body = fwk.views.widgetTemplate(widget)
+					else
+						for table in widget.configuration.tables
+							body += fwk.views.widgetTable(results: widget.data[table.queryName], table: table)
 					$widget.replaceWith fwk.views.widget
 						widgetName: widget.name
 						widget: widget
-						body: tables
+						body: body
 				error: (xhr) ->
 					if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
 						fwk.views.widget(errors: $.parseJSON(xhr.responseText))

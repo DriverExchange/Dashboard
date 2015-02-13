@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import dx.dashboard.App;
 import dx.dashboard.tools.GroovyTemplateEngine;
@@ -163,6 +164,12 @@ public class DashboardController {
 					} else {
 						data.put(queryName, queryResults);
 					}
+				}
+				else if (fileName.equals("widget.ejs")) {
+					result.add("template", new JsonPrimitive(IO.readContentAsString(widgetFile)));
+				}
+				else if (fileName.equals("widget.css")) {
+					result.add("css", new JsonPrimitive(IO.readContentAsString(widgetFile)));
 				}
 			}
 			if (!errors.isEmpty()) {

@@ -27,24 +27,23 @@ import static spark.Spark.*;
 
 public class DashboardController {
 
-	public static final String widgetsPath = App.configuration.getProperty("dashboard.widgets.path");
-	static {
+	public static final Pattern validNameRegex = Pattern.compile("[a-zA-Z0-9]+");
+
+	public static File getWidgetsDir() {
+		String widgetsPath = App.configuration.getProperty("dashboard.widgets.path");
 		if (widgetsPath == null) {
 			throw new RuntimeException("dashboard.widgets.path is undefined");
 		}
-	}
-	public static final File widgetsDir = new File(widgetsPath, "src");
-	static {
+		File widgetsDir = new File(widgetsPath, "src");
 		if (!widgetsDir.exists()) {
 			throw new RuntimeException(widgetsDir.getAbsolutePath() + " (defined in dashboard.widgets.path) was not found");
 		}
+		return widgetsDir;
 	}
-
-	public static final Pattern validNameRegex = Pattern.compile("[a-zA-Z0-9]+");
 
 	public static JsonArray readDashboardsConfiguration() {
 		List<String> errors = RenderArgs.get("errors");
-		File dashboardConfFile = new File(widgetsDir, "dashboards.json");
+		File dashboardConfFile = new File(getWidgetsDir(), "dashboards.json");
 		if (!dashboardConfFile.exists()) {
 			errors.add(dashboardConfFile.getAbsolutePath() + " not found");
 		}
@@ -75,7 +74,7 @@ public class DashboardController {
 	}
 
 	public static JsonObject readWidgetConfiguration(String widgetName) {
-		File configurationFile = new File(widgetsDir, widgetName + "/configuration.json");
+		File configurationFile = new File(getWidgetsDir(), widgetName + "/configuration.json");
 		if (configurationFile.exists()) {
 			try {
 				return (JsonObject) new JsonParser().parse(IO.readContentAsString(configurationFile));
@@ -140,9 +139,10 @@ public class DashboardController {
 			List<String> errors = new ArrayList<>();
 			String widgetName = req.params("widgetName");
 			JsonObject objConfiguration = readWidgetConfiguration(widgetName);
+			File widgetsDir = getWidgetsDir();
 			File widgetDir = new File(widgetsDir, widgetName);
-			if (!widgetDir.exists()) {
-				throw new RuntimeException(widgetsDir.getAbsolutePath() + " is not a directory");
+			if (!widgetDir.exists() && widgetDir.isDirectory()) {
+				throw new RuntimeException(widgetDir.getAbsolutePath() + " is not a directory");
 			}
 			Map<String, List<Map<String, Object>>> data = new HashMap<>();
 			for (File widgetFile : widgetDir.listFiles()) {

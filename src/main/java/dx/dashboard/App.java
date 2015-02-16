@@ -8,11 +8,8 @@ import dx.dashboard.tools.Tools;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Properties;
 
 import static spark.Spark.*;
@@ -23,18 +20,17 @@ public class App {
 
 	public static final String startId;
 	static {
-		URL scriptUrl = ClassLoader.getSystemResource("shellscripts/current_commit_hash.sh");
-		try {
-			File scriptFile = new File(scriptUrl.toURI());
-			String hash = Tools.runProcess("current_commit_hash.sh", scriptFile.getAbsolutePath());
-			if (hash == null || hash.length() < 8) {
-				hash = Codec.hexMD5(Codec.UUID()).substring(0, 8);
-			}
-			startId = hash.substring(0, 8);
-			Logger.info("startId: %s", startId);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
+		String logOutput = Tools.runProcess("git log", "git log -n 1 --oneline");
+		String[] logLines = logOutput.split("\\n");
+		String hash = null;
+		if (logLines.length > 0 && !logLines[0].startsWith("fatal:")) {
+			hash = logLines[0].substring(0, 7);
 		}
+		if (hash == null || hash.length() < 7) {
+			hash = Codec.hexMD5(Codec.UUID()).substring(0, 7);
+		}
+		startId = hash.substring(0, 7);
+		Logger.info("startId: %s", startId);
 	}
 
 	public static final Properties configuration = new Properties();
@@ -66,7 +62,6 @@ public class App {
 			AssetsController.initDevStaticFile();
 		}
 		else {
-			Logger.info("staticFileLocation");
 			staticFileLocation("static");
 		}
 

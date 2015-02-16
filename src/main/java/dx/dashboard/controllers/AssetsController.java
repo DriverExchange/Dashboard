@@ -5,6 +5,7 @@ import dx.dashboard.Logger;
 import dx.dashboard.tools.CoffeeScriptCompiler;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.StylusCompiler;
+import dx.dashboard.tools.Tools;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletResponse;

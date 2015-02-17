@@ -76,6 +76,18 @@ public class App {
 			staticFileLocation("static");
 		}
 
+		before((req, res) -> {
+			String login = configuration.getProperty("global.login");
+			String password = configuration.getProperty("global.password");
+			if (login != null && password != null) {
+				String authorization = req.headers("authorization");
+				if (authorization == null || !authorization.equals("Basic " + Codec.encodeBASE64(login + ":" + password))) {
+					res.header("WWW-Authenticate", "Basic realm=Unauthorized");
+					res.status(401);
+				}
+			}
+		});
+
 		AssetsController.init();
 		DashboardController.init();
 

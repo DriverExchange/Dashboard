@@ -90,26 +90,15 @@ public class StylusCompiler {
 		}
 	}
 
-//	public static String compileStyle(String styleName) {
-//		File stylusFile = new File(sourceDir, styleName + ".styl");
-//		File cssFile = new File(sourceDir, styleName + ".css");
-//		String compiledCss = "";
-//		if (stylusFile.exists()) {
-//			compiledCss = compile(stylusFile);
-//		} else if (cssFile.exists()) {
-//			compiledCss = IO.readContentAsString(cssFile);
-//		}
-//		return compiledCss;
-//	}
-
 	public static String compileProcess(String stylusContent) {
 		String compiled = "";
 		String coffeeNativeFullpath = App.configuration.getProperty("stylus.path", "");
 		List<String> command = new ArrayList<String>();
 		command.add(coffeeNativeFullpath);
-//		command.add("--include-css");
-//		command.add("--include");
-//		command.add(sourceDir.getAbsolutePath());
+		// TODO
+		// command.add("--include-css");
+		// command.add("--include");
+		// command.add(sourceDir.getAbsolutePath());
 		if (!App.isDevMode()) {
 			command.add("-c");
 		}

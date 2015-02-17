@@ -8,6 +8,8 @@ import dx.dashboard.tools.Tools;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -35,12 +37,21 @@ public class App {
 
 	public static final Properties configuration = new Properties();
 	static {
-		InputStream is = ClassLoader.getSystemResourceAsStream("application.properties");
-		if (is == null) {
-			Logger.error("application.conf file cannot be found");
-		}
 		try {
-			configuration.load(is);
+			InputStream configurationIs;
+			File localConfigurationFile = new File("application.properties");
+			if (localConfigurationFile.exists()) {
+				Logger.info("Using local application.properties (in the project root) instead of the one in src/main/resource");
+				configurationIs = new FileInputStream(localConfigurationFile);
+			}
+			else {
+				Logger.info("Using default application.properties in src/main/resource");
+				configurationIs = ClassLoader.getSystemResourceAsStream("application.properties");
+			}
+			if (configurationIs == null) {
+				Logger.error("application.conf file cannot be found");
+			}
+			configuration.load(configurationIs);
 		} catch (IOException e) {
 			throw new RuntimeException("Error while loading application.conf", e);
 		}

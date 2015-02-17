@@ -2,7 +2,6 @@ package dx.dashboard.tools;
 
 import com.google.gson.GsonBuilder;
 import dx.dashboard.App;
-import dx.dashboard.Logger;
 
 import java.io.File;
 import java.io.InputStream;
@@ -18,12 +17,9 @@ public class AssetsCompiler {
 			String[] resources = Tools.getResourceListing(resourcePath);
 			for (String resourceName : resources) {
 				if (resourceName.endsWith(".ejs")) {
-					Logger.info("1./ " + resourceName);
 					String viewName = resourceName.substring(0, resourceName.indexOf("."));
-					Logger.info("3./ " + viewName);
-					Logger.info("3.../ " +resourcePath + "/" + resourceName);
-					String viewContent = IO.readContentAsString(ClassLoader.getSystemResourceAsStream(resourcePath + "/" + resourceName)).replaceAll("\\t", "");
-					Logger.info("4./ " + viewContent);
+					InputStream resourceIs = ClassLoader.getSystemResourceAsStream(resourcePath + "/" + resourceName);
+					String viewContent = IO.readContentAsString(resourceIs).replaceAll("\\t", "");
 					loadedViews.put(viewName, viewContent);
 				}
 			}

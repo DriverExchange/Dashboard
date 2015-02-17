@@ -1,28 +1,19 @@
 package dx.dashboard.tools;
 
-import dx.dashboard.App;
 import dx.dashboard.Logger;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.CodeSource;
-import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class Tools {
 
@@ -87,16 +78,6 @@ public class Tools {
 		return output;
 	}
 
-	public static File getResourceAsFile(String name) {
-		URL url = ClassLoader.getSystemResource(name);
-		Logger.info(url.toString());
-		try {
-			return new File(url.toURI());
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public static String[] getResourceListing(String path) {
 
 		try {
@@ -106,13 +87,6 @@ public class Tools {
 				return new File(dirURL.toURI()).list();
 			}
 
-//			if (dirURL == null) {
-//				// In case of a jar file, we can't actually find a directory.
-//				// Have to assume the same jar as clazz.
-//				String me = App.class.getName().replace(".", "/") + ".class";
-//				dirURL = App.class.getClassLoader().getResource(me);
-//			}
-
 			if (dirURL != null && dirURL.getProtocol().equals("jar")) {
 				String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!")); //strip out only the JAR file
 				JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
@@ -121,23 +95,18 @@ public class Tools {
 				while (entries.hasMoreElements()) {
 					String name = entries.nextElement().getName();
 					if (name.startsWith(path)) { //filter according to the path
-						Logger.info("name) "+name);
-						Logger.info("path) "+path);
 						String entry = name.substring(path.length());
 						if (entry.startsWith("/")) {
 							entry = entry.substring(1);
 						}
 						if (entry.isEmpty()) {
-							Logger.info("continue");
 							continue;
 						}
-						Logger.info("entry) "+entry);
 						int checkSubdir = entry.indexOf("/");
 						if (checkSubdir >= 0) {
 							// if it is a subdirectory, we just return the directory name
 							entry = entry.substring(0, checkSubdir);
 						}
-						Logger.info("entry2) "+entry);
 						result.add(entry);
 					}
 				}

@@ -4,7 +4,6 @@ import dx.dashboard.controllers.AssetsController;
 import dx.dashboard.controllers.DashboardController;
 import dx.dashboard.tools.Codec;
 import dx.dashboard.tools.Database;
-import dx.dashboard.tools.Tools;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +21,7 @@ public class App {
 
 	public static final String startId;
 	static {
-		String logOutput = Tools.runProcess("git log", "git log -n 1 --oneline");
-		String[] logLines = logOutput.split("\\n");
-		String hash = null;
-		if (logLines.length > 0 && !logLines[0].startsWith("fatal:")) {
-			hash = logLines[0].substring(0, 7);
-		}
-		if (hash == null || hash.length() < 7) {
-			hash = Codec.hexMD5(Codec.UUID()).substring(0, 7);
-		}
-		startId = hash.substring(0, 7);
+		startId = Codec.hexMD5(Codec.UUID()).substring(0, 7);
 		Logger.info("startId: %s", startId);
 	}
 

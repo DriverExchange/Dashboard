@@ -16,6 +16,8 @@ updateWidgetWidgetHeight = (widgetName) ->
 			.css("height", fwk.data.currentWidgetHeight)
 			.find(".box")
 			.css("height", fwk.data.currentWidgetHeight - 20)
+			.find(".boxBody")
+			.css("height", fwk.data.currentWidgetHeight - 120)
 
 fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
 
@@ -32,6 +34,7 @@ updateWidgetData = (widgetName) ->
 				html = fwk.views.widgetTable(widget: widget)
 			$(".widget[data-name=#{widget.name}]").replaceWith(html)
 			updateWidgetWidgetHeight(widgetName)
+			$(".grid .widget[data-name=#{widget.name}] .boxBody").mCustomScrollbar(theme: "minimal-dark")
 
 		error: (xhr) ->
 			if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
@@ -39,7 +42,7 @@ updateWidgetData = (widgetName) ->
 
 $ ->
 
-	$("body").addClass(fwk.data.dashboardConf.widtype)
+	$("body").addClass(fwk.data.dashboardConf.type)
 
 	$("#topBar").replaceWith fwk.views.topBar({})
 
@@ -60,3 +63,4 @@ $ ->
 
 	if fwk.data.dashboardConf.type == "grid"
 		$(window).resize(windowResize)
+

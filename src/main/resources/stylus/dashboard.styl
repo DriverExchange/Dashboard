@@ -1,6 +1,6 @@
 body
-	background: #F4F4F4
-	color: #333
+	background: #1f2a36
+	color: #CEDEEF
 	margin: 0 20px
 	font-size: 14px
 	font-family: Lato, sans-serif
@@ -38,66 +38,93 @@ ul
 
 .widget
 	.box
-		background: #fff
+		background: #2c3d4e
 		margin: 0 20px 0 0
 		padding: 20px
-		color: #333
+		border-radius: 6px
+		-webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);
+		box-shadow: 0 0 3px 0 rgba(0,0,0,0.4);
+
 	.title
 		font-weight: 300
 		font-size: 20px
 		padding-bottom: 10px
+
 	table
 		font-size: 14px
-		color: #376C73
+		color: #b6c8da
 		width: 100%
 		border-collapse: collapse
 		thead
 			th
 				text-align: left
 				padding: 10px 10px 10px 0
-				border-bottom: 2px solid #EDF0F0
+				border-bottom: 2px solid #2d3c4b
 		tbody
 			td
 				padding: 10px 10px 10px 0
-				border-bottom: 1px solid #EDF0F0
+				border-bottom: 1px solid #2d3c4b
 			tr:last-child td
 				border-bottom: 0
 				padding-bottom: 0
+
+
+.grid
+	.box
+		padding: 0
+
+	.boxHeader
+		background: #35475d
+		border-bottom: 1px solid #203549
+		padding: 10px 20px 10px 20px
+		border-radius: 6px 6px 0 0
+
+	.boxBody
+		padding: 20px 10px 0 20px
+		overflow: auto
 
 .col:last-child .widget .box
 	margin-right: 0
 
 #topBar
-	background: #fff
+	background: #2c3d4e
 	height: 50px
 	margin-bottom: 20px
+	border-radius: 0 0 6px 6px
+	-webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.1);
+	box-shadow: 0 0 3px 0 rgba(0,0,0,0.1);
+	position: relative
 	.dashboardNav
 		display: inline-block
-		position: relative
+		position: absolute
+		top: 0
+		left: 0
 		margin-left: 20px
-		background: #F4F4F4
-		height: 50px
+		background: #35475d
+		min-height: 50px
 		line-height: 50px
-		padding: 0 20px
+		border-left: 1px solid #2a3848
+		border-right: 1px solid #2a3848
+		font-size: 16px
+		font-weight: 300
+		z-index: 2
 		.selected
 			position: relative
 			padding-right: 15px
+			margin: 0 20px
+			color: #fff
 			.glyphicon
 				position: absolute
 				top: 50%
 				right: -10px
 				margin-top: -6px
-				color: #ccc
+				color: #677c9a
 
 		.dropdown
-			background: #eee
+			background: #35475d
 			display: none
-			position: absolute
-			top: 50px
-			left: 0
 			line-height: 20px
 			padding: 10px 20px
-			z-index: 2
 			max-height: 200px
 			overflow: auto
 			min-width: 100%
@@ -108,12 +135,14 @@ ul
 				li
 					margin: 0
 					padding: 2px 0
-		&:hover .dropdown
-			display: block
+		&:hover
+			border-bottom: 1px solid #2a3848
+			.dropdown
+				display: block
 
 
 	a
-		color: #333
+		color: #c7d2df
 		&:hover
-			color: #888
+			color: #fff
 

@@ -1,21 +1,29 @@
-<% var cols = table.columns; %>
-<div class="widgetTable">
-	<table>
-		<thead>
-			<tr>
-				<% _.map(cols, function(col) { %>
-					<th class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%= col.title %></th>
-				<% }); %>
-			</tr>
-		</thead>
-		<tbody>
-			<% _.map(results, function(result) { %>
-			<tr>
-				<% _.map(cols, function(col) { %>
-				<td class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%= result[col.name] %></td>
-				<% }) %>
-			</tr>
+<div class="widget" data-name="<%= widget.name %>">
+	<div class="box">
+		<% if (obj.widget && widget.configuration.title) { %>
+			<div class="title"><%= widget.configuration.title %></div>
+		<% } %>
+		<div class="widgetTable">
+			<% _.map(widget.configuration.tables, function(tableConfiguration) { %>
+			<table>
+				<thead>
+					<tr>
+						<% _.map(tableConfiguration.columns, function(col) { %>
+							<th class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%= col.title %></th>
+						<% }); %>
+					</tr>
+				</thead>
+				<tbody>
+					<% _.map(widget.data[tableConfiguration.queryName], function(result) { %>
+					<tr>
+						<% _.map(tableConfiguration.columns, function(col) { %>
+						<td class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%= result[col.name] %></td>
+						<% }) %>
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
 			<% }) %>
-		</tbody>
-	</table>
+		</div>
+	</div>
 </div>

@@ -1,5 +1,45 @@
 
+getCurrentWidgetHeight = ->
+	if fwk.data.dashboardConf.gridSize
+		Math.floor(($(window).height() - 70) / fwk.data.dashboardConf.gridSize.y)
+	else
+		null
+
+windowResize = ->
+	fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
+	updateWidgetWidgetHeight()
+
+updateWidgetWidgetHeight = (widgetName) ->
+	if fwk.data.currentWidgetHeight
+		widgetSelector = if widgetName then "[data-name=#{widgetName}]" else ""
+		$(".widget" + widgetSelector)
+			.css("height", fwk.data.currentWidgetHeight)
+			.find(".box")
+			.css("height", fwk.data.currentWidgetHeight - 20)
+
+fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
+
+updateWidgetData = (widgetName) ->
+	$.ajax
+		url: "/widgets/#{widgetName}"
+		success: (widget) ->
+			if widget.css
+				$("head").append """<style type="text/css">#{widget.css}</style>"""
+			if widget.template
+				template = ejs.compile(widget.template, filename: widget.name + "_widget.ejs")
+				html = template(widget: widget)
+			else
+				html = fwk.views.widgetTable(widget: widget)
+			$(".widget[data-name=#{widget.name}]").replaceWith(html)
+			updateWidgetWidgetHeight(widgetName)
+
+		error: (xhr) ->
+			if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
+				fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
+
 $ ->
+
+	$("body").addClass(fwk.data.dashboardConf.widtype)
 
 	$("#topBar").replaceWith fwk.views.topBar({})
 
@@ -9,26 +49,14 @@ $ ->
 		$widgets.append("""<div class="col col#{idx} nbCols#{nbCols}"></div>""")
 		$col = $widgets.find(".col.col#{idx}")
 		for widgetName in cols
-			$col.append(fwk.views.widget(widgetName: widgetName, title: fwk.data.widgetTitles[widgetName]))
-			$col.find(".widget[data-name=#{widgetName}]").spinStart(largeSpinnerOptions)
-			$.ajax
-				url: "/widgets/#{widgetName}"
-				success: (widget) ->
-					$widget = $(".widget[data-name=#{widget.name}]")
-					body = ""
-					if widget.css
-						$("head").append """<style type="text/css">#{widget.css}</style>"""
-					if widget.template
-						fwk.views.addInline(widgetTemplate: widget.template)
-						body = fwk.views.widgetTemplate(widget)
-					else
-						for table in widget.configuration.tables
-							body += fwk.views.widgetTable(results: widget.data[table.queryName], table: table)
-					$widget.replaceWith fwk.views.widget
-						widgetName: widget.name
-						widget: widget
-						body: body
-				error: (xhr) ->
-					if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
-						fwk.views.widget(errors: $.parseJSON(xhr.responseText))
+			widget =
+				name: widgetName
+				configuration:
+					title: fwk.data.widgetTitles[widgetName]
+			$col.append(fwk.views.widget(widget: widget))
+			$(".widget[updateWidgetData-name=#{widgetName}]").spinStart(largeSpinnerOptions)
+			updateWidgetWidgetHeight(widgetName)
+			updateWidgetData(widgetName)
 
+	if fwk.data.dashboardConf.type == "grid"
+		$(window).resize(windowResize)

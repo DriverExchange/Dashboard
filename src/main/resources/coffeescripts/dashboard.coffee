@@ -71,8 +71,8 @@ $ ->
 				name: widgetName
 				configuration:
 					title: fwk.data.widgetTitles[widgetName]
-			$col.append(fwk.views.widget(widget: widget))
-			$(".widget[updateWidgetData-name=#{widgetName}]").spinStart(largeSpinnerOptions)
+			$col.append(fwk.views.widget(widget: widget, loading: true))
+			$(".widget[data-name=#{widgetName}] .box").spinStart(largeSpinnerOptions)
 			updateWidgetWidgetHeight(widgetName)
 			updateWidgetData(widgetName)
 

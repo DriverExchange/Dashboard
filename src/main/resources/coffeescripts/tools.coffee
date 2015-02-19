@@ -1,3 +1,4 @@
+window.tools = {}
 
 window.largeSpinnerOptions =
 	lines: 12
@@ -57,3 +58,13 @@ $.fn.spinStop = ->
 	$(this).each ->
 		clearSpinningTimeout(this)
 		$(this).removeClass("spinning").find(".spinner").remove()
+
+
+tools.formatValue = (val, formatValue, dataRow) ->
+	if formatValue
+		formatValueFunction = -> ""
+		eval("formatValueFunction = " + formatValue)
+		formatValueFunction(val, dataRow)
+	else
+		val
+

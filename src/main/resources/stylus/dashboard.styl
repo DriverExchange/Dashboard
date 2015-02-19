@@ -9,7 +9,7 @@ body
 a
 	color: #fff
 	text-decoration: underline
-	&:hover
+	&:hover, &:focus
 		color: #fff
 		text-decoration: none
 
@@ -212,6 +212,18 @@ table.propertiesTable
 			text-align: left
 			font-weight: normal
 			color: #6F8BA6
+	thead
+		tr th
+			border-bottom: 1px solid rgba(0,0,0,0.05)
+			border-left: 1px solid rgba(0,0,0,0.05)
+			border-right-width: 0
+			&:first-child
+				border-left-width: 0
+	&.listTable
+		tr td
+			border-left: 1px solid rgba(0,0,0,0.05)
+			&:first-child
+				border-left-width: 0
 
 .modalBackground
 	z-index: 3

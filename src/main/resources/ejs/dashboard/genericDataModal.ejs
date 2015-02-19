@@ -6,33 +6,53 @@
 			<h1><%= title %></h1>
 		</div>
 
-		<table class="propertiesTable">
-			<tbody>
-				<% if (!tableConfiguration) { %>
-					<% _.map(data, function(value, key) { %>
-					<tr>
-						<th><%= key %></th>
-						<td><%- value || "-" %></td>
-					</tr>
-					<% }) %>
-				<% } else { %>
-					<% _.map(tableConfiguration.columns, function(col) {
-						if (col.formatValue) {
-							var formatValueFunction;
-							eval("formatValueFunction = " + col.formatValue);
-							value = formatValueFunction(data[col.name], data);
-						}
-						else {
-							value = data[col.name];
-						}
-					%>
-					<tr>
-						<th><%= col.title || col.name %></th>
-						<td><%- value || "-" %></td>
-					</tr>
-					<% }); %>
-				<% } %>
-			</tbody>
-		</table>
+		<% if (!_.isArray(data)) { %>
+
+			<table class="propertiesTable listTable">
+				<tbody>
+					<% if (!tableConfiguration) { %>
+						<% _.map(data, function(value, key) { %>
+						<tr>
+							<th><%= key %></th>
+							<td><%- value || "-" %></td>
+						</tr>
+						<% }) %>
+					<% } else { %>
+						<% _.map(tableConfiguration.columns, function(col) { %>
+						<tr>
+							<th><%= col.title || col.name %></th>
+							<td><%- tools.formatValue(data[col.name], col.formatValue, data) || "-" %></td>
+						</tr>
+						<% }); %>
+					<% } %>
+				</tbody>
+			</table>
+
+		<% } else { %>
+
+			<% if (!tableConfiguration) { %>
+				<p>Error: no table configuration</p>
+			<% } else { %>
+				<table class="propertiesTable listTable">
+					<thead>
+						<tr>
+							<% _.map(tableConfiguration.columns, function(col) { %>
+								<th class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%= col.title %></th>
+							<% }); %>
+						</tr>
+					</thead>
+					<tbody>
+						<% _.map(data, function(result) { %>
+						<tr>
+							<% _.map(tableConfiguration.columns, function(col) { %>
+							<td class="<%= col.name %>" <% if (col.width) { %>style="width: <%= col.width %>"<% } %>><%- tools.formatValue(result[col.name], col.formatValue, result) %></td>
+							<% }) %>
+						</tr>
+						<% }) %>
+					</tbody>
+				</table>
+			<% } %>
+
+		<% } %>
 	</div>
 </div>

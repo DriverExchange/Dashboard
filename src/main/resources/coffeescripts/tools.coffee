@@ -4,7 +4,7 @@ window.largeSpinnerOptions =
 	length: 20
 	width: 6
 	radius: 22
-	color: "#999"
+	color: "#cedeef"
 	speed: 1
 	trail: 57
 	top: "50%"

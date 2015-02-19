@@ -1,0 +1,38 @@
+<div class="modalHolder">
+	<div class="modalBackground"></div>
+	<div class="modal">
+		<a href="javascript:;" class="close">&times;</a>
+		<div class="header">
+			<h1><%= title %></h1>
+		</div>
+
+		<table class="propertiesTable">
+			<tbody>
+				<% if (!tableConfiguration) { %>
+					<% _.map(data, function(value, key) { %>
+					<tr>
+						<th><%= key %></th>
+						<td><%- value %></td>
+					</tr>
+					<% }) %>
+				<% } else { %>
+					<% _.map(tableConfiguration.columns, function(col) {
+						if (col.formatValue) {
+							var formatValueFunction;
+							eval("formatValueFunction = " + col.formatValue);
+							value = formatValueFunction(data[col.name], data);
+						}
+						else {
+							value = data[col.name];
+						}
+					%>
+					<tr>
+						<th><%= col.title || col.name %></th>
+						<td><%- value %></td>
+					</tr>
+					<% }); %>
+				<% } %>
+			</tbody>
+		</table>
+	</div>
+</div>

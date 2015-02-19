@@ -40,6 +40,21 @@ updateWidgetData = (widgetName) ->
 			if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
 				fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
 
+fwk.domEvents.add
+	"[data-modal-data]": click: ->
+		html = fwk.views.genericDataModal
+			title: $(this).data("modal-title")
+			tableConfiguration: $(this).data("data-modal-table-configuration") || $(this).closest("[data-modal-table-configuration]").data("modal-table-configuration")
+			data: $(this).data("modal-data")
+		$("#modalHolder").html(html)
+
+	".modalBackground, .modal .close": click: ->
+		$("#modalHolder").empty()
+
+$(document).keyup (e) ->
+	if e.keyCode == 27
+		$("#modalHolder").empty()
+
 $ ->
 
 	$("body").addClass(fwk.data.dashboardConf.type)

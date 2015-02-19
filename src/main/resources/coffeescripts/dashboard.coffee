@@ -18,6 +18,10 @@ updateWidgetWidgetHeight = (widgetName) ->
 			.css("height", fwk.data.currentWidgetHeight - 20)
 			.find(".boxBody")
 			.css("height", fwk.data.currentWidgetHeight - 120)
+		$(".modal .body")
+			.css("max-height", $(window).height() - 170)
+			.mCustomScrollbar("update")
+		$(".modal").css(top: Math.floor(($(window).height() - $(".modal").outerHeight()) / 2))
 
 fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
 
@@ -47,6 +51,8 @@ fwk.domEvents.add
 			tableConfiguration: $(this).data("data-modal-table-configuration") || $(this).closest("[data-modal-table-configuration]").data("modal-table-configuration")
 			data: $(this).data("modal-data")
 		$("#modalHolder").html(html)
+		updateWidgetWidgetHeight()
+		$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
 
 	".modalBackground, .modal .close": click: ->
 		$("#modalHolder").empty()

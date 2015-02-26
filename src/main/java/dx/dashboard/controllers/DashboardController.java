@@ -158,7 +158,7 @@ public class DashboardController {
 					} else if (!strQuery.trim().toUpperCase().startsWith("SELECT")) {
 						errors.add(String.format("<strong>%s</strong> query must start with SELECT", queryName));
 					}
-					List<Map<String, Object>> queryResults = App.db.dx.run(new FinalQuery(strQuery), JdbcResult.mapFactory()).limit(501).list();
+					List<Map<String, Object>> queryResults = App.db.source.run(new FinalQuery(strQuery), JdbcResult.mapFactory()).limit(501).list();
 					if (queryResults.size() == 501) {
 						errors.add(String.format("<strong>%s</strong>: there where more than 500 rows returned", queryName));
 					} else {

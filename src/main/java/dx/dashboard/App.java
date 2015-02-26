@@ -1,17 +1,32 @@
 package dx.dashboard;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.ning.http.client.AsyncCompletionHandler;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 import dx.dashboard.controllers.AssetsController;
 import dx.dashboard.controllers.DashboardController;
 import dx.dashboard.tools.Codec;
 import dx.dashboard.tools.Database;
+import dx.dashboard.tools.GroovyTemplateEngine;
+import dx.dashboard.tools.RenderArgs;
+import fr.zenexity.dbhelper.Sql;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.LoggerFactory;
+import spark.ModelAndView;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Future;
 
 import static spark.Spark.*;
 
@@ -48,8 +63,7 @@ public class App {
 	}
 
 	public static class Databases {
-		public Database dx = new Database("dx");
-//		public Database dashboard = new Database("dashboard");
+		public Database source = new Database("source");
 	}
 
 	public static final Databases db = new Databases();
@@ -67,14 +81,106 @@ public class App {
 		}
 
 		before((req, res) -> {
-			String login = configuration.getProperty("global.login");
-			String password = configuration.getProperty("global.password");
-			if (login != null && password != null) {
-				String authorization = req.headers("authorization");
-				if (authorization == null || !authorization.equals("Basic " + Codec.encodeBASE64(login + ":" + password))) {
-					res.header("WWW-Authenticate", "Basic realm=Unauthorized");
-					res.status(401);
+			req.session(true);
+			if (!req.uri().equals("/login")) {
+				String userId = req.session().attribute("userId");
+				if (userId == null) {
+					String xRequestedWith = req.headers("X-Requested-With");
+					boolean isAjax = xRequestedWith != null && xRequestedWith.equals("XMLHttpRequest");
+					boolean isHtml = req.headers("Accept").contains("text/html");
+					if (isHtml) {
+						res.redirect("/login");
+					}
+					if (isAjax) {
+						res.status(403);
+					}
 				}
+			}
+		});
+
+		get("/login", (req, res) -> {
+			return new ModelAndView(RenderArgs.map(), "login.html");
+		}, new GroovyTemplateEngine());
+
+		post("/login", (req, res) -> {
+			String email = req.queryParams("email");
+			String password = req.queryParams("password");
+
+			String loginApiUrl = App.configuration.getProperty("login_api.url");
+			String loginApiUsername = App.configuration.getProperty("login_api.username");
+			String loginApiPassword = App.configuration.getProperty("login_api.password");
+
+			Map<String, Object> result = new HashMap<>();
+
+			if (loginApiUrl == null || loginApiUrl.isEmpty()) {
+				Logger.error("'login_api.url' isn't defined in application.properties");
+				result.put("error", "The login API isn't properly configured");
+			}
+
+			if (loginApiUsername == null || loginApiUsername.isEmpty()) {
+				Logger.error("'login_api.username' isn't defined in application.properties");
+				result.put("error", "The login API isn't properly configured");
+			}
+
+			if (loginApiPassword == null || loginApiPassword.isEmpty()) {
+				Logger.error("'login_api.password' isn't defined in application.properties");
+				result.put("error", "The login API isn't properly configured");
+			}
+
+			if (email == null || email.isEmpty()) {
+				result.put("error", "Email required");
+			}
+
+			if (password == null || password.isEmpty()) {
+				result.put("error", "Password required");
+			}
+
+			if (result.isEmpty() && email != null) {
+
+				AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+				Future<Response> futureResponse = asyncHttpClient
+					.preparePost(loginApiUrl)
+					.addHeader("Authorization", "Basic " + Codec.encodeBASE64(loginApiUsername + ":" + loginApiPassword))
+					.execute(new AsyncCompletionHandler<Response>() {
+
+						@Override
+						public Response onCompleted(Response response) throws Exception {
+							return response;
+						}
+
+						@Override
+						public void onThrowable(Throwable t) {
+							// Something wrong happened.
+						}
+
+					});
+
+				Response response = futureResponse.get();
+				String contentType = response.getHeader("Content-type");
+				if (contentType != null && contentType.contains("application/json")) {
+					JsonObject obj = (JsonObject) new JsonParser().parse(response.getResponseBody());
+					Long userId = obj.getAsJsonPrimitive("userId").getAsNumber().longValue();
+					req.session().attribute("userId", userId);
+				}
+
+				String passwordHash = db.source.run(selectPasswordHash, String.class).first();
+
+				if (passwordHash == null) {
+					result.put("error", "Email not found");
+				}
+				else {
+					if (!BCrypt.checkpw(password, passwordHash)) {
+						result.put("error", "Wrong password");
+					}
+				}
+			}
+
+			if (!result.isEmpty()) {
+				return new Gson().toJson(result);
+			}
+			else {
+				req.session().attribute("login", email);
+				return "";
 			}
 		});
 

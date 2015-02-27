@@ -114,68 +114,52 @@ public class App {
 
 			if (loginApiUrl == null || loginApiUrl.isEmpty()) {
 				Logger.error("'login_api.url' isn't defined in application.properties");
-				result.put("error", "The login API isn't properly configured");
+				result.put("error", "The login API isn't configured");
 			}
 
-			if (loginApiUsername == null || loginApiUsername.isEmpty()) {
+			else if (loginApiUsername == null || loginApiUsername.isEmpty()) {
 				Logger.error("'login_api.username' isn't defined in application.properties");
-				result.put("error", "The login API isn't properly configured");
+				result.put("error", "The login API isn't configured");
 			}
 
-			if (loginApiPassword == null || loginApiPassword.isEmpty()) {
+			else if (loginApiPassword == null || loginApiPassword.isEmpty()) {
 				Logger.error("'login_api.password' isn't defined in application.properties");
-				result.put("error", "The login API isn't properly configured");
+				result.put("error", "The login API isn't configured");
 			}
 
-			if (email == null || email.isEmpty()) {
+			else if (email == null || email.isEmpty()) {
 				result.put("error", "Email required");
 			}
 
-			if (password == null || password.isEmpty()) {
+			else if (password == null || password.isEmpty()) {
 				result.put("error", "Password required");
 			}
 
-			if (result.isEmpty() && email != null) {
+			else {
 
 				AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 				Future<Response> futureResponse = asyncHttpClient
 					.preparePost(loginApiUrl)
 					.addHeader("Authorization", "Basic " + Codec.encodeBASE64(loginApiUsername + ":" + loginApiPassword))
-					.execute(new AsyncCompletionHandler<Response>() {
-
-						@Override
-						public Response onCompleted(Response response) throws Exception {
-							return response;
-						}
-
-						@Override
-						public void onThrowable(Throwable t) {
-							// Something wrong happened.
-						}
-
-					});
+					.addFormParam("email", email)
+					.addFormParam("password", password)
+					.execute();
 
 				Response response = futureResponse.get();
+
 				String contentType = response.getHeader("Content-type");
 				if (contentType != null && contentType.contains("application/json")) {
 					JsonObject obj = (JsonObject) new JsonParser().parse(response.getResponseBody());
 					Long userId = obj.getAsJsonPrimitive("userId").getAsNumber().longValue();
 					req.session().attribute("userId", userId);
 				}
-
-				String passwordHash = db.source.run(selectPasswordHash, String.class).first();
-
-				if (passwordHash == null) {
-					result.put("error", "Email not found");
-				}
 				else {
-					if (!BCrypt.checkpw(password, passwordHash)) {
-						result.put("error", "Wrong password");
-					}
+					result.put("error", "Login API error (" + response.getStatusCode() + ")");
 				}
 			}
 
 			if (!result.isEmpty()) {
+				res.status(400);
 				return new Gson().toJson(result);
 			}
 			else {

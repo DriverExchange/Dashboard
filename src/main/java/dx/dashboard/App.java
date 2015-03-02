@@ -83,7 +83,7 @@ public class App {
 		before((req, res) -> {
 			req.session(true);
 			if (!req.uri().equals("/login")) {
-				String userId = req.session().attribute("userId");
+				Long userId = req.session().attribute("userId");
 				if (userId == null) {
 					String xRequestedWith = req.headers("X-Requested-With");
 					boolean isAjax = xRequestedWith != null && xRequestedWith.equals("XMLHttpRequest");
@@ -99,6 +99,10 @@ public class App {
 		});
 
 		get("/login", (req, res) -> {
+			Long userId = req.session().attribute("userId");
+			if (userId != null) {
+				res.redirect("/");
+			}
 			return new ModelAndView(RenderArgs.map(), "login.html");
 		}, new GroovyTemplateEngine());
 
@@ -147,11 +151,14 @@ public class App {
 
 				Response response = futureResponse.get();
 
-				String contentType = response.getHeader("Content-type");
-				if (contentType != null && contentType.contains("application/json")) {
-					JsonObject obj = (JsonObject) new JsonParser().parse(response.getResponseBody());
+				if (response.getStatusCode() == 200) {
+					String body = response.getResponseBody();
+					JsonObject obj = (JsonObject) new JsonParser().parse(body);
 					Long userId = obj.getAsJsonPrimitive("userId").getAsNumber().longValue();
 					req.session().attribute("userId", userId);
+				}
+				else if (response.getStatusCode() == 403) {
+					result.put("password", "Wrong password");
 				}
 				else {
 					result.put("error", "Login API error (" + response.getStatusCode() + ")");
@@ -164,7 +171,7 @@ public class App {
 			}
 			else {
 				req.session().attribute("login", email);
-				return "";
+				return "{}";
 			}
 		});
 

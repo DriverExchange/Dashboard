@@ -1,10 +1,8 @@
 package dx.dashboard;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import dx.dashboard.controllers.AssetsController;
@@ -13,9 +11,7 @@ import dx.dashboard.tools.Codec;
 import dx.dashboard.tools.Database;
 import dx.dashboard.tools.GroovyTemplateEngine;
 import dx.dashboard.tools.RenderArgs;
-import fr.zenexity.dbhelper.Sql;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
 

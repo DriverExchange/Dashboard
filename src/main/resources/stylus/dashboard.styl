@@ -80,6 +80,43 @@ ul
 				border-bottom: 0
 				padding-bottom: 0
 
+	.keys
+		.keyTitle
+			display: inline-block
+			line-height: 22px
+			overflow: hidden
+			width: 40px
+		.key
+			line-height: 22px
+			color: #fff
+			background: #008974
+			padding: 0 6px
+			border-radius: 3px
+			margin-right: 2px
+			margin-bottom: 2px
+			white-space: nowrap
+			overflow:  hidden
+			text-overflow: ellipsis
+			display: inline-block
+			text-decoration: none
+			max-width: 100%
+			&.success
+				background-color: #5cb85c
+			&.warning
+				background-color: #f0ad4e
+			&.danger
+				background-color: #d9534f
+
+			&.alert0
+				background-color: #2A8BA1
+			&.alert1
+				background-color: #CDC641
+			&.alert2
+				background-color: #AA8E39
+			&.alert3
+				background-color: #AA6D39
+			&.alert4
+				background-color: #AA3939
 .grid
 	.box
 		padding: 0
@@ -128,6 +165,23 @@ ul
 		text-decoration: none
 		&:hover
 			text-decoration: underline
+		&.success
+			background-color: #5cb85c
+		&.warning
+			background-color: #f0ad4e
+		&.danger
+			background-color: #d9534f
+
+		&.alert0
+			background-color: #2A8BA1
+		&.alert1
+			background-color: #CDC641
+		&.alert2
+			background-color: #AA8E39
+		&.alert3
+			background-color: #AA6D39
+		&.alert4
+			background-color: #AA3939
 
 .col:last-child .widget .box
 	margin-right: 0

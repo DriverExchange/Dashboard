@@ -7,17 +7,21 @@ getCurrentWidgetHeight = ->
 
 windowResize = ->
 	fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
-	updateWidgetWidgetHeight()
+	updateWidgetHeight()
 
-updateWidgetWidgetHeight = (widgetName) ->
+updateWidgetHeight = (widgetName) ->
 	if fwk.data.currentWidgetHeight
 		widgetSelector = if widgetName then "[data-name=#{widgetName}]" else ""
-		$(".widget" + widgetSelector)
+		$widget = $(".widget" + widgetSelector)
+		$widget
 			.css("height", fwk.data.currentWidgetHeight)
 			.find(".box")
 			.css("height", fwk.data.currentWidgetHeight - 20)
 			.find(".boxBody")
-			.css("height", fwk.data.currentWidgetHeight - 120)
+		if $(".keys").length > 0
+			$widget.find(".boxBody").css("height", fwk.data.currentWidgetHeight - 150)
+		else
+			$widget.find(".boxBody").css("height", fwk.data.currentWidgetHeight - 120)
 		$(".modal .body")
 			.css("max-height", $(window).height() - 170)
 			.mCustomScrollbar("update")
@@ -37,7 +41,7 @@ updateWidgetData = (widgetName) ->
 			else
 				html = fwk.views.widgetTable(widget: widget)
 			$(".widget[data-name=#{widget.name}]").replaceWith(html)
-			updateWidgetWidgetHeight(widgetName)
+			updateWidgetHeight(widgetName)
 			$(".grid .widget[data-name=#{widget.name}] .boxBody").mCustomScrollbar(theme: "minimal-dark")
 
 		error: (xhr) ->
@@ -51,7 +55,7 @@ fwk.domEvents.add
 			tableConfiguration: $(this).data("data-modal-table-configuration") || $(this).closest("[data-modal-table-configuration]").data("modal-table-configuration")
 			data: $(this).data("modal-data")
 		$("#modalHolder").html(html)
-		updateWidgetWidgetHeight()
+		updateWidgetHeight()
 		$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
 
 	".modalBackground, .modal .close": click: ->
@@ -79,7 +83,7 @@ $ ->
 					title: fwk.data.widgetTitles[widgetName]
 			$col.append(fwk.views.widget(widget: widget, loading: true))
 			$(".widget[data-name=#{widgetName}] .box").spinStart(largeSpinnerOptions)
-			updateWidgetWidgetHeight(widgetName)
+			updateWidgetHeight(widgetName)
 			updateWidgetData(widgetName)
 
 	if fwk.data.dashboardConf.type == "grid"

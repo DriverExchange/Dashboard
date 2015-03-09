@@ -1,19 +1,16 @@
 package dx.dashboard.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import dx.dashboard.App;
+import dx.dashboard.Logger;
 import dx.dashboard.tools.GroovyTemplateEngine;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.RenderArgs;
 import fr.zenexity.dbhelper.JdbcResult;
 import fr.zenexity.dbhelper.Sql.FinalQuery;
+import groovy.text.SimpleTemplateEngine;
 import spark.ModelAndView;
+import spark.QueryParamsMap;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -132,6 +129,33 @@ public class DashboardController {
 			RenderArgs.addJsData("widgetTitles", widgetTitles);
 			return new ModelAndView(RenderArgs.renderArgs.get(), "dashboard.html");
 		}, new GroovyTemplateEngine());
+
+		get("/modals/widgetName/:widgetName/queryName/:queryName/sqlParam/:sqlParam", (req, res) -> {
+			res.type("application/json");
+			String widgetName = req.params("widgetName");
+			String queryName = req.params("queryName");
+			Map<String, String> sqlParam = new HashMap();
+			sqlParam.put("sqlParam", req.params("sqlParam"));
+
+			File widgetsDir = getWidgetsDir();
+			File widgetDir = new File(widgetsDir, widgetName);
+
+			if (!widgetDir.exists() && widgetDir.isDirectory()) {
+				throw new RuntimeException(widgetDir.getAbsolutePath() + " is not a directory");
+			}
+
+			Map<String, List<Map<String, Object>>> data = new HashMap<>();
+			for (File widgetFile : widgetDir.listFiles()) {
+				String fileName = widgetFile.getName();
+				if (fileName.equals(queryName + ".sql.ejs")) {
+					String queryString = new SimpleTemplateEngine().createTemplate(widgetFile).make(sqlParam).toString();
+					Logger.info("queryString: %s", queryString);
+					List<Map<String, Object>> queryResults = App.db.source.run(new FinalQuery(queryString), JdbcResult.mapFactory()).limit(501).list();
+					return new Gson().toJson(queryResults);
+				}
+			}
+			return "No modal ajax query found matching file type '.sql.ejs'";
+		});
 
 		get("/widgets/:widgetName", (req, res) -> {
 			res.type("application/json");

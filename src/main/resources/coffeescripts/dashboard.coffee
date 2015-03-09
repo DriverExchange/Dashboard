@@ -61,6 +61,26 @@ fwk.domEvents.add
 	".modalBackground, .modal .close": click: ->
 		$("#modalHolder").empty()
 
+	"[data-modal-ajax] .tag": click: ->
+		$that = $(this)
+		console.log "params", $that.data("modal-ajax-params")
+		$.ajax
+			url: $that.data("modal-ajax-url")
+			method: "GET"
+			dataType: "JSON"
+			success: (widget) ->
+				html = fwk.views.genericDataModal
+					title: $that.data("modal-title")
+					tableConfiguration: $that.data("data-modal-table-configuration") || $that.closest("[data-modal-table-configuration]").data("modal-table-configuration")
+					data: widget[0]
+				$("#modalHolder").html(html)
+				updateWidgetHeight()
+				$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
+			error: (xhr) ->
+				console.log("xhr", xhr)
+				if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
+					fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
+
 $(document).keyup (e) ->
 	if e.keyCode == 27
 		$("#modalHolder").empty()

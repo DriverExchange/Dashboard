@@ -67,6 +67,9 @@ public class App {
 	public static boolean isDevMode() {
 		return configuration.getProperty("mode", "prod").equals("dev");
 	}
+	public static boolean passwordRequired() {
+		return configuration.getProperty("dashboard.password", "true").equals("true");
+	}
 
 	public static void main(String[] args) {
 		if (isDevMode()) {

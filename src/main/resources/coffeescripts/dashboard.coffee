@@ -61,18 +61,19 @@ fwk.domEvents.add
 	".modalBackground, .modal .close": click: ->
 		$("#modalHolder").empty()
 
-	"[data-modal-ajax] .tag": click: ->
+	"[data-modal-ajax] .tag, [data-modal-ajax].tag": click: ->
 		$that = $(this)
-		console.log "params", $that.data("modal-ajax-params")
 		$.ajax
 			url: $that.data("modal-ajax-url")
 			method: "GET"
 			dataType: "JSON"
-			success: (widget) ->
+			success: (modalData) ->
+				mergedWidget = {}
+				_.each(modalData, (data) -> _.extend(mergedWidget, data))
 				html = fwk.views.genericDataModal
 					title: $that.data("modal-title")
 					tableConfiguration: $that.data("data-modal-table-configuration") || $that.closest("[data-modal-table-configuration]").data("modal-table-configuration")
-					data: widget[0]
+					data: mergedWidget
 				$("#modalHolder").html(html)
 				updateWidgetHeight()
 				$(".modal .body").mCustomScrollbar(theme: "minimal-dark")

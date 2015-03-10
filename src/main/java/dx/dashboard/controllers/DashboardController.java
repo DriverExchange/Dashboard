@@ -2,7 +2,6 @@ package dx.dashboard.controllers;
 
 import com.google.gson.*;
 import dx.dashboard.App;
-import dx.dashboard.Logger;
 import dx.dashboard.tools.GroovyTemplateEngine;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.RenderArgs;
@@ -10,17 +9,13 @@ import fr.zenexity.dbhelper.JdbcResult;
 import fr.zenexity.dbhelper.Sql.FinalQuery;
 import groovy.text.SimpleTemplateEngine;
 import spark.ModelAndView;
-import spark.QueryParamsMap;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static spark.Spark.*;
+import static spark.Spark.before;
+import static spark.Spark.get;
 
 public class DashboardController {
 
@@ -130,31 +125,39 @@ public class DashboardController {
 			return new ModelAndView(RenderArgs.renderArgs.get(), "dashboard.html");
 		}, new GroovyTemplateEngine());
 
-		get("/modals/widgetName/:widgetName/queryName/:queryName/sqlParam/:sqlParam", (req, res) -> {
+		get("/modals/queryNames/:queryNames/sqlParam/:sqlParam", (req, res) -> {
 			res.type("application/json");
-			String widgetName = req.params("widgetName");
-			String queryName = req.params("queryName");
+			String[] queryNames = req.params("queryNames").split(";");
 			Map<String, String> sqlParam = new HashMap();
 			sqlParam.put("sqlParam", req.params("sqlParam"));
 
 			File widgetsDir = getWidgetsDir();
-			File widgetDir = new File(widgetsDir, widgetName);
+			File widgetDir = new File(widgetsDir, "modals");
 
 			if (!widgetDir.exists() && widgetDir.isDirectory()) {
 				throw new RuntimeException(widgetDir.getAbsolutePath() + " is not a directory");
 			}
 
-			Map<String, List<Map<String, Object>>> data = new HashMap<>();
-			for (File widgetFile : widgetDir.listFiles()) {
-				String fileName = widgetFile.getName();
-				if (fileName.equals(queryName + ".sql.ejs")) {
-					String queryString = new SimpleTemplateEngine().createTemplate(widgetFile).make(sqlParam).toString();
-					Logger.info("queryString: %s", queryString);
-					List<Map<String, Object>> queryResults = App.db.source.run(new FinalQuery(queryString), JdbcResult.mapFactory()).limit(501).list();
-					return new Gson().toJson(queryResults);
+			List<Map<String, Object>> queryResults = new ArrayList<Map<String, Object>>();
+			boolean fileFound = false;
+			for (String queryName : queryNames) {
+				for (File widgetFile : widgetDir.listFiles()) {
+					String fileName = widgetFile.getName();
+					if (fileName.equals(queryName + ".ejs.sql")) {
+						fileFound = true;
+						String queryString = new SimpleTemplateEngine().createTemplate(widgetFile).make(sqlParam).toString();
+						queryResults.add(App.db.source.run(new FinalQuery(queryString), JdbcResult.mapFactory()).limit(501).first());
+					}
 				}
 			}
-			return "No modal ajax query found matching file type '.sql.ejs'";
+			if (!fileFound) {
+				res.status(400);
+				return "No modal ajax query found matching file type '.ejs.sql'";
+			}
+			else {
+				return new Gson().toJson(queryResults);
+			}
+
 		});
 
 		get("/widgets/:widgetName", (req, res) -> {

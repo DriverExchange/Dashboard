@@ -117,6 +117,10 @@ public class DashboardController {
 						}
 					}
 				}
+				JsonElement widgetGlobal = dashboardConf.get("global");
+				if (widgetGlobal == null) {
+					errors.add(String.format("'global' parameter is not defined for " + dashboardName + " in dashboards.json"));
+				}
 			}
 			RenderArgs.put("errors", errors);
 			RenderArgs.addJsData("dashboardsConf", dashboardsConf);
@@ -160,7 +164,7 @@ public class DashboardController {
 
 		});
 
-		get("/widgets/:widgetName", (req, res) -> {
+		get("/widgets/:widgetName/global/:global", (req, res) -> {
 			res.type("application/json");
 			JsonObject result = new JsonObject();
 			List<String> errors = new ArrayList<>();
@@ -179,13 +183,18 @@ public class DashboardController {
 					if (!validNameRegex.matcher(queryName).matches()) {
 						errors.add(String.format("<strong>%s</strong> is not a valid query name", queryName));
 					}
-					String strQuery = IO.readContentAsString(widgetFile);
-					if (strQuery == null) {
+					String strTemplate = IO.readContentAsString(widgetFile);
+					if (strTemplate == null) {
 						errors.add(String.format("<strong>%s</strong> query could not be read", queryName));
-					} else if (!strQuery.trim().toUpperCase().startsWith("SELECT")) {
+					} else if (!strTemplate.trim().toUpperCase().startsWith("SELECT")) {
 						errors.add(String.format("<strong>%s</strong> query must start with SELECT", queryName));
 					}
-					List<Map<String, Object>> queryResults = App.db.source.run(new FinalQuery(strQuery), JdbcResult.mapFactory()).limit(501).list();
+					Map<String, Long> sqlParam = new HashMap();
+					Long connectedUser = Boolean.parseBoolean(req.params("global")) ? null : req.session().attribute("userId");
+					sqlParam.put("connectedUser", connectedUser);
+					String queryString = new SimpleTemplateEngine().createTemplate(widgetFile).make(sqlParam).toString();
+
+					List<Map<String, Object>> queryResults = App.db.source.run(new FinalQuery(queryString), JdbcResult.mapFactory()).limit(501).list();
 					if (queryResults.size() == 501) {
 						errors.add(String.format("<strong>%s</strong>: there where more than 500 rows returned", queryName));
 					} else {

@@ -29,9 +29,9 @@ updateWidgetHeight = (widgetName) ->
 
 fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
 
-updateWidgetData = (widgetName) ->
+updateWidgetData = (widgetName, global) ->
 	$.ajax
-		url: "/widgets/#{widgetName}"
+		url: "/widgets/#{widgetName}/global/#{global}"
 		success: (widget) ->
 			if widget.css
 				$("head").append """<style type="text/css">#{widget.css}</style>"""
@@ -78,7 +78,6 @@ fwk.domEvents.add
 				updateWidgetHeight()
 				$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
 			error: (xhr) ->
-				console.log("xhr", xhr)
 				if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
 					fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
 
@@ -105,7 +104,7 @@ $ ->
 			$col.append(fwk.views.widget(widget: widget, loading: true))
 			$(".widget[data-name=#{widgetName}] .box").spinStart(largeSpinnerOptions)
 			updateWidgetHeight(widgetName)
-			updateWidgetData(widgetName)
+			updateWidgetData(widgetName, fwk.data.dashboardConf.global.toLowerCase() == "true")
 
 	if fwk.data.dashboardConf.type == "grid"
 		$(window).resize(windowResize)

@@ -45,6 +45,52 @@ ul
 
 #widgets
 	margin: 0 20px
+
+.tags
+	.tag, .key
+		line-height: 22px
+		color: #2F5176
+		background: #D1E8FF
+		padding: 0 6px
+		border-radius: 3px
+		margin-right: 2px
+		margin-bottom: 2px
+		white-space: nowrap
+		max-width: 30%
+		overflow:  hidden
+		text-overflow: ellipsis
+		display: inline-block
+		text-decoration: none
+		&:hover
+			text-decoration: underline
+		&.success
+			background-color: #81EA81
+			color: #006200
+		&.warning
+			background-color: #FFC26E
+			color: #814C00
+		&.danger
+			background-color: #FF9390
+			color: #900000
+		&.alert0
+			background-color: #94B9E4
+			color: #063B77
+		&.alert1
+			background-color: #D5FFB3
+			color: #386B0F
+		&.alert2
+			background-color: #E0B3FF
+			color: #5E1A8C
+		&.alert3
+			background-color: #F4F3A0
+			color: #7B6200
+		&.alert4
+			background-color: #D8B695
+			color: #713A05
+		&.alert5
+			background-color: #97F5EE
+			color: #125F59
+
 .widget
 	.box
 		background: #2c3d4e
@@ -81,18 +127,21 @@ ul
 				padding-bottom: 0
 
 	.keys
+		margin-top: 5px
+		font-size: 12px
 		.keyTitle
 			display: inline-block
-			line-height: 22px
 			overflow: hidden
-			width: 40px
+			margin-right: 4px
+			line-height: 18px
+			vertical-align: middle
 		.key
-			line-height: 22px
-			color: #fff
-			background: #008974
-			padding: 0 6px
-			border-radius: 3px
+			vertical-align: middle
+			line-height: 18px
+			padding: 0 5px
+			border-radius: 2px
 			margin-right: 2px
+			margin-top: 2px
 			margin-bottom: 2px
 			white-space: nowrap
 			overflow:  hidden
@@ -100,23 +149,7 @@ ul
 			display: inline-block
 			text-decoration: none
 			max-width: 100%
-			&.success
-				background-color: #5cb85c
-			&.warning
-				background-color: #f0ad4e
-			&.danger
-				background-color: #d9534f
 
-			&.alert0
-				background-color: #2A8BA1
-			&.alert1
-				background-color: #CDC641
-			&.alert2
-				background-color: #AA8E39
-			&.alert3
-				background-color: #AA6D39
-			&.alert4
-				background-color: #AA3939
 .grid
 	.box
 		padding: 0
@@ -131,6 +164,7 @@ ul
 	.boxBody
 		padding: 20px 10px 0 20px
 		overflow: auto
+		font-size: 13px
 
 .actionWidget
 	.bigNumber
@@ -148,40 +182,6 @@ ul
 			margin-left: 90px
 			font-size: 18px
 			padding: 17px 0
-
-	.tags a.tag
-		line-height: 22px
-		color: #fff
-		background: #008974
-		padding: 0 6px
-		border-radius: 3px
-		margin-right: 2px
-		margin-bottom: 2px
-		white-space: nowrap
-		max-width: 30%
-		overflow:  hidden
-		text-overflow: ellipsis
-		display: inline-block
-		text-decoration: none
-		&:hover
-			text-decoration: underline
-		&.success
-			background-color: #5cb85c
-		&.warning
-			background-color: #f0ad4e
-		&.danger
-			background-color: #d9534f
-
-		&.alert0
-			background-color: #2A8BA1
-		&.alert1
-			background-color: #CDC641
-		&.alert2
-			background-color: #AA8E39
-		&.alert3
-			background-color: #AA6D39
-		&.alert4
-			background-color: #AA3939
 
 .col:last-child .widget .box
 	margin-right: 0

@@ -1,3 +1,5 @@
+window.g = window.g || {}
+g.charts = []
 
 getCurrentWidgetHeight = ->
 	if fwk.data.dashboardConf.gridSize
@@ -27,6 +29,15 @@ updateWidgetHeight = (widgetName) ->
 			.mCustomScrollbar("update")
 		$(".modal").css(top: Math.floor(($(window).height() - $(".modal").outerHeight()) / 2))
 
+fixKeysWidth = (widgetName) ->
+	if fwk.data.currentWidgetHeight
+		widgetSelector = if widgetName then "[data-name=#{widgetName}]" else ""
+		$keysHolder = $(".widget" + widgetSelector + " .keys")
+		$keys = $keysHolder.find(".key")
+		totalWidth = 40
+		$keys.each(-> totalWidth += $(this).width() + 12)
+		$keysHolder.width(totalWidth)
+
 fwk.data.currentWidgetHeight = getCurrentWidgetHeight()
 
 updateWidgetData = (widgetName, global) ->
@@ -42,6 +53,7 @@ updateWidgetData = (widgetName, global) ->
 				html = fwk.views.widgetTable(widget: widget)
 			$(".widget[data-name=#{widget.name}]").replaceWith(html)
 			updateWidgetHeight(widgetName)
+			fixKeysWidth(widgetName)
 			$(".grid .widget[data-name=#{widget.name}] .boxBody").mCustomScrollbar(theme: "minimal-dark")
 
 		error: (xhr) ->
@@ -63,6 +75,7 @@ fwk.domEvents.add
 
 	"[data-modal-ajax] .tag, [data-modal-ajax].tag": click: ->
 		$that = $(this)
+		$(".topBarSpinnerHolder").spinStart(topBarSpinnerOptions)
 		$.ajax
 			url: $that.data("modal-ajax-url")
 			method: "GET"
@@ -80,6 +93,8 @@ fwk.domEvents.add
 			error: (xhr) ->
 				if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
 					fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
+			complete: ->
+				$(".topBarSpinnerHolder").spinStop()
 
 $(document).keyup (e) ->
 	if e.keyCode == 27
@@ -108,4 +123,3 @@ $ ->
 
 	if fwk.data.dashboardConf.type == "grid"
 		$(window).resize(windowResize)
-

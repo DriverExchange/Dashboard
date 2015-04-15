@@ -20,6 +20,16 @@ window.mediumSpinnerOptions =
 	width: 2
 	radius: 6
 
+window.topBarSpinnerOptions =
+	lines: 9
+	length: 6
+	width: 3
+	radius: 6
+	color: "#ffffff"
+	top: "-5px"
+	left: "20px"
+	position: "relative"
+
 spinner = (options) ->
 	options = options || {}
 
@@ -67,4 +77,17 @@ tools.formatValue = (val, formatValue, dataRow) ->
 		formatValueFunction(val, dataRow)
 	else
 		val
+
+tools.integerFormat = (value) ->
+	value = value || 0
+	valueInteger = Math.floor(value)
+	valueIntegerString = valueInteger + ""
+	valueIntegerArray = []
+	length = valueIntegerString.length
+	groups = Math.floor(length / 3)
+	for group in [(groups + 1)..1]
+		start = length - group * 3
+		groupString = valueIntegerString.slice((if start <= 0 then 0 else start), start + 3)
+		valueIntegerArray.push(groupString) if groupString.length > 0
+	valueIntegerArray.join(",")
 

@@ -26,8 +26,8 @@ window.topBarSpinnerOptions =
 	width: 3
 	radius: 6
 	color: "#ffffff"
-	top: "-5px"
-	left: "20px"
+	top: "25px"
+	left: "15px"
 	position: "relative"
 
 spinner = (options) ->
@@ -69,7 +69,6 @@ $.fn.spinStop = ->
 		clearSpinningTimeout(this)
 		$(this).removeClass("spinning").find(".spinner").remove()
 
-
 tools.formatValue = (val, formatValue, dataRow) ->
 	if formatValue
 		formatValueFunction = -> ""
@@ -90,4 +89,3 @@ tools.integerFormat = (value) ->
 		groupString = valueIntegerString.slice((if start <= 0 then 0 else start), start + 3)
 		valueIntegerArray.push(groupString) if groupString.length > 0
 	valueIntegerArray.join(",")
-

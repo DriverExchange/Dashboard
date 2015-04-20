@@ -9,11 +9,29 @@
 				<ul>
 				<% _.map(fwk.data.dashboardsConf, function(dashboard) { %>
 					<% if (dashboard.name != fwk.data.dashboardConf.name) { %>
-						<li><a href="/dashboards/<%= dashboard.name %>" value="<%= dashboard.name %>"><%= dashboard.title %></a></li>
+						<li><a href="/dashboards/<%= dashboard.name %>/accountManager/<%= fwk.data.currentAccountManager %>" value="<%= dashboard.name %>"><%= dashboard.title %></a></li>
 					<% } %>
 				<% }) %>
 				</ul>
 			</div>
+		</div>
+	</div>
+	<div class="userSwitch">
+		<div class="selected">
+		<% var currentAccountManager = _.find(fwk.data.accountManagers, function(accMan) { return fwk.data.currentAccountManager == accMan.id});
+		if (currentAccountManager != undefined) { %>
+			<%= currentAccountManager.firstname + ' ' + currentAccountManager.surname %>
+		<% } %>
+			<span class="glyphicon glyphicon-chevron-down"></span>
+		</div>
+		<div class="dropdown">
+			<ul>
+				<% _.map(fwk.data.accountManagers, function(accountManager) { %>
+					<% if (accountManager.id != fwk.data.currentAccountManager) { %>
+						<li><a href="/dashboards/<%= fwk.data.dashboardConf.name %>/accountManager/<%= accountManager.id %>" value="<%= accountManager.id %>"><%= accountManager.firstname + ' ' + accountManager.surname %></a></li>
+					<% } %>
+				<% }) %>
+			</ul>
 		</div>
 	</div>
 	<div class="topBarSpinnerHolder"></div>

@@ -6,6 +6,7 @@ import dx.dashboard.tools.GroovyTemplateEngine;
 import dx.dashboard.tools.IO;
 import dx.dashboard.tools.RenderArgs;
 import fr.zenexity.dbhelper.JdbcResult;
+import fr.zenexity.dbhelper.Sql;
 import fr.zenexity.dbhelper.Sql.FinalQuery;
 import groovy.text.SimpleTemplateEngine;
 import spark.ModelAndView;
@@ -78,6 +79,22 @@ public class DashboardController {
 		return null;
 	}
 
+	public static List<Map<String, Object>> getAccountManagers() {
+		Sql.Select accManSelect = Sql.select(
+			"u.id",
+			"u.firstname",
+			"u.surname"
+		)
+			.from("users u")
+			.join("user_roles ur on ur.user_id = u.id")
+			.where("u.dtype = 'SystemOperator'")
+			.andWhere("u.archived is false")
+			.andWhere("ur.role = 'ACCOUNT_MANAGER'")
+			.orderBy("lower(firstName), lower(surname), id");
+
+		return App.db.source.run(accManSelect, JdbcResult.mapFactory()).limit(501).list();
+	}
+
 	public static void init() {
 
 		before((req, res) -> {
@@ -89,12 +106,14 @@ public class DashboardController {
 			JsonArray dashboardsConf = readDashboardsConfiguration();
 			JsonObject dashboardObject = (JsonObject) dashboardsConf.iterator().next();
 			String dashboardName = dashboardObject.get("name").getAsString();
-			res.redirect("/dashboards/" + dashboardName);
+			res.redirect("/dashboards/" + dashboardName + "/accountManager/" + req.session().attribute("userId"));
 			return "";
 		});
 
-		get("/dashboards/:dashboardName", (req, res) -> {
+		get("/dashboards/:dashboardName/accountManager/:accountManager", (req, res) -> {
 			String dashboardName = req.params("dashboardName");
+			String accountManager = req.params("accountManager");
+			req.session().attribute("currentAccountManager", accountManager);
 			List<String> errors = new ArrayList<>();
 			RenderArgs.put("errors", errors);
 			Map<String, String> widgetTitles = new HashMap<>();
@@ -126,6 +145,9 @@ public class DashboardController {
 			RenderArgs.addJsData("dashboardsConf", dashboardsConf);
 			RenderArgs.addJsData("dashboardConf", dashboardConf);
 			RenderArgs.addJsData("widgetTitles", widgetTitles);
+			RenderArgs.addJsData("connectedUser", req.session().attribute("userId"));
+			RenderArgs.addJsData("currentAccountManager", accountManager);
+			RenderArgs.addJsData("accountManagers", getAccountManagers());
 			return new ModelAndView(RenderArgs.renderArgs.get(), "dashboard.html");
 		}, new GroovyTemplateEngine());
 
@@ -190,7 +212,7 @@ public class DashboardController {
 						errors.add(String.format("<strong>%s</strong> query must start with SELECT", queryName));
 					}
 					Map<String, Long> sqlParam = new HashMap();
-					Long connectedUser = Boolean.parseBoolean(req.params("global")) ? null : req.session().attribute("userId");
+					Long connectedUser = Boolean.parseBoolean(req.params("global")) ? null : Long.parseLong(req.session().attribute("currentAccountManager"));
 					sqlParam.put("connectedUser", connectedUser);
 					String queryString = new SimpleTemplateEngine().createTemplate(widgetFile).make(sqlParam).toString();
 

@@ -202,12 +202,10 @@ ul
 	-webkit-box-shadow: 0 0 3px 0 rgba(0,0,0,0.1)
 	box-shadow: 0 0 3px 0 rgba(0,0,0,0.1)
 	position: relative
-	.dashboardNav
-		display: inline-block
-		position: absolute
+	.dashboardNav, .userSwitch
 		top: 0
-		left: 0
-		margin-left: 20px
+		position: absolute
+		display: inline-block
 		background: #35475d
 		min-height: 50px
 		line-height: 50px
@@ -227,15 +225,14 @@ ul
 				right: -10px
 				margin-top: -6px
 				color: #677c9a
-
 		.dropdown
 			background: #35475d
 			display: none
 			line-height: 20px
-			padding: 10px 20px
 			max-height: 200px
 			overflow: auto
 			min-width: 100%
+			padding: 10px 20px
 			ul
 				margin: 0
 				padding: 0
@@ -247,10 +244,19 @@ ul
 			border-bottom: 1px solid #2a3848
 			.dropdown
 				display: block
+	.dashboardNav
+		left: 0
+		margin-left: 20px
+		.dropdown
+			padding: 10px 20px
+	.userSwitch
+		right: 50px
+		padding: 0px 10px
+		.dropdown
+			padding: 10px 0px
 	.topBarSpinnerHolder
 		&.spinning
 			width: 40px
-		// display: inline-block
 		float: right
 
 	a

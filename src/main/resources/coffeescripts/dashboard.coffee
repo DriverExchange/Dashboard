@@ -1,5 +1,6 @@
 window.g = window.g || {}
 g.charts = []
+g.scrollBarOptions = _.extend(theme: "minimal-dark", fwk.data.dashboardConf.scrollBarOptions)
 
 getCurrentWidgetHeight = ->
 	if fwk.data.dashboardConf.gridSize
@@ -54,7 +55,11 @@ updateWidgetData = (widgetName, global) ->
 			$(".widget[data-name=#{widget.name}]").replaceWith(html)
 			updateWidgetHeight(widgetName)
 			fixKeysWidth(widgetName)
-			$(".grid .widget[data-name=#{widget.name}] .boxBody").mCustomScrollbar(theme: "minimal-dark")
+			$(".grid .widget[data-name=#{widget.name}] .boxBody").mCustomScrollbar(g.scrollBarOptions)
+
+			if ("#toggleMilestone").length > 0
+				$("#siteIssueCount").text($(".directSite").length);
+				$(".milestoneSite").hide();
 
 		error: (xhr) ->
 			if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
@@ -68,7 +73,7 @@ fwk.domEvents.add
 			data: $(this).data("modal-data")
 		$("#modalHolder").html(html)
 		updateWidgetHeight()
-		$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
+		$(".modal .body").mCustomScrollbar(g.scrollBarOptions)
 
 	".modalBackground, .modal .close": click: ->
 		$("#modalHolder").empty()
@@ -89,12 +94,22 @@ fwk.domEvents.add
 					data: mergedWidget
 				$("#modalHolder").html(html)
 				updateWidgetHeight()
-				$(".modal .body").mCustomScrollbar(theme: "minimal-dark")
+				$(".modal .body").mCustomScrollbar(g.scrollBarOptions)
 			error: (xhr) ->
 				if xhr.responseText[0] == "{" || xhr.responseText[0] == "["
 					fwk.views.widget(widget: {name: widgetName}, errors: $.parseJSON(xhr.responseText))
 			complete: ->
 				$(".topBarSpinnerHolder").spinStop()
+
+	"#toggleMilestone": click: ->
+		if $(this).is(":checked")
+			$(".milestoneSite").show()
+			$(".directSite").hide()
+			$("#siteIssueCount").text $(".milestoneSite").length
+		else
+			$(".milestoneSite").hide()
+			$(".directSite").show()
+			$("#siteIssueCount").text $(".directSite").length
 
 $(document).keyup (e) ->
 	if e.keyCode == 27
